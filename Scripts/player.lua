@@ -49,7 +49,9 @@ function Player(x, y)
         player.x = math.max(player.size, math.min(Window.width - player.size, player.x))
         player.y = math.max(player.size, math.min(Window.height - player.size, player.y))
     end
-    function player.shoot()
+    function player.shoot(projectiles)
+        projectiles.spawn(player)
+        player.fireTimer = player.fireCooldown
     end
     return player
 end
