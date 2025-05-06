@@ -9,49 +9,49 @@ function Boss(x, y, player)
         size = 50,
         speed = 500,
         health = 50,
-        fireCooldown = 0.5, -- seconds between shots
+        fireCooldown = 0.1,
         fireTimer = 0,
         target = player,
         angle = 0,
         projectileModifiers = {}
     }
     function boss.shoot(projectiles, dt)
-        Boss.fireTimer = Boss.fireTimer - dt
-        if Boss.fireTimer <= 0 then
+        boss.fireTimer = boss.fireTimer - dt
+        if boss.fireTimer <= 0 then
             local mode = math.floor(love.timer.getTime()) % 3
             if mode == 0 then
-                Boss.projectileModifiers.Radial = true
-                Boss.projectileCount = 16
-                for i = 0, Boss.projectileCount - 1 do
-                    Boss.projectileIndex = i
+                boss.projectileModifiers.Radial = true
+                boss.projectileCount = 16
+                for i = 0, boss.projectileCount - 1 do
+                    boss.projectileIndex = i
                     projectiles.spawn(Boss)
                 end
-                Boss.projectileModifiers.Radial = false
-                Boss.projectileIndex = nil
-                Boss.projectileCount = nil
+                boss.projectileModifiers.Radial = false
+                boss.projectileIndex = nil
+                boss.projectileCount = nil
             elseif mode == 1 then
-                local dx = Player.x - Boss.x
-                local dy = Player.y - Boss.y
+                local dx = Player.x - boss.x
+                local dy = Player.y - boss.y
                 local angle = math.atan(dy / dx)
                 if dx < 0 then 
                     angle = angle + math.pi
                 end
-                Boss.angle = angle - math.rad(120) / 2
-                Boss.projectileModifiers.Sine = true
-                Boss.projectileCount = 5
-                for i = 0, Boss.projectileCount - 1 do
-                    Boss.projectileIndex = i
+                boss.angle = angle - math.rad(120) / 2
+                boss.projectileModifiers.Sine = true
+                boss.projectileCount = 5
+                for i = 0, boss.projectileCount - 1 do
+                    boss.projectileIndex = i
                     projectiles.spawn(Boss)
                 end
-                Boss.projectileModifiers.Sine = false
-                Boss.projectileIndex = nil
-                Boss.projectileCount = nil
+                boss.projectileModifiers.Sine = false
+                boss.projectileIndex = nil
+                boss.projectileCount = nil
             elseif mode == 2 then
-                Boss.projectileModifiers.Tracking = true
+                boss.projectileModifiers.Tracking = true
                 projectiles.spawn(Boss)
-                Boss.projectileModifiers.Tracking = false
+                boss.projectileModifiers.Tracking = false
             end
-            Boss.fireTimer = Boss.fireCooldown
+            boss.fireTimer = boss.fireCooldown
         end
     end
     return boss

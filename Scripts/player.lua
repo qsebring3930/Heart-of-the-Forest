@@ -11,7 +11,7 @@ function Player(x, y)
         size = 10,
         speed = 300,
         health = 5,
-        fireCooldown = 0.1, -- seconds between shots
+        fireCooldown = 0.1,
         fireTimer = 0,
         projectileModifiers = {}
     }
@@ -52,6 +52,9 @@ function Player(x, y)
     function player.shoot(projectiles)
         projectiles.spawn(player)
         player.fireTimer = player.fireCooldown
+    end
+    function player.update(dt)
+        player.fireTimer = player.fireTimer - dt
     end
     return player
 end

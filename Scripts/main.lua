@@ -3,27 +3,37 @@ local player = require "player"
 local game = require "game"
 local projectile = require "projectile"
 local boss = require "boss"
+local gamestate = require "gamestate"
+local button = require "button"
 
 
 function love.load()
     InitWindow()
     InitStage()
+    Game = game()
+    GameState = gamestate()
 end
 
 function love.update(dt)
     GetKeys(dt)
-    UpdateProjectiles(dt)
-    Boss.shoot(Projectiles, dt)
-    UpdateTimers(dt)
+    if GameState.staged and not GameState.paused and not GameState.gameover then
+        UpdateProjectiles(dt)
+        Boss.shoot(Projectiles, dt)
+        Player.update(dt)
+    end
 end
 
 function love.draw()
     -- first translate, then scale
 	love.graphics.translate (Window.translateX, Window.translateY)
 	love.graphics.scale (Window.scale)
-	-- your graphics code here, optimized for fullHD
 	love.graphics.rectangle('line', 0, 0, 1920, 1080)
-    DrawEntities()
+    if GameState.running then
+        GameState.draw()
+        if GameState.staged and not GameState.paused and not GameState.gameover then 
+            DrawEntities()  
+        end
+    end
 end
 
 function InitWindow()
@@ -34,20 +44,9 @@ function InitWindow()
 end
 
 function InitStage()
-    Game = game()
     Player = player(Width / 2, Height * 3 / 4)
     Projectiles = projectile()
     Boss = boss(Width / 2, Height * 1 / 4, Player)
-    InitEntities()
-end
-
-function InitEntities()
-    BossProjectiles = {}
-end
-
-function UpdateTimers(dt)
-    Player.fireTimer = Player.fireTimer - dt
-    Boss.fireTimer = Boss.fireTimer - dt
 end
 
 function WithinBounds()
@@ -119,6 +118,9 @@ function UpdateProjectiles(dt)
                 print("Player was hit!")
                 Player.health = Player.health - 1
                 table.remove(Projectiles.list, i)
+                if Player.health <= 0 then
+                    --GameState.transition()
+                end
             else
                 table.remove(Projectiles.list, i)   
             end
@@ -127,7 +129,7 @@ function UpdateProjectiles(dt)
 end
 
 function love.keypressed(key)
-    if key == "p" then
+    if key == "z" then
         Player.projectileModifiers.Wiggly = not Player.projectileModifiers.Wiggly
     elseif key == "f" then
         if love.window.getFullscreen() then
@@ -137,8 +139,26 @@ function love.keypressed(key)
             love.window.setFullscreen(true)
             Window.scale = 4
         end
+    elseif key == "t" then
+        GameState.transition()
+    elseif key == "p" then
+        GameState.paused = not GameState.paused
+    elseif key == "r" then
+        InitStage()
     end
 end
+
+function love.mousepressed(x, y, button, istouch, presses)
+    if button == 1 and GameState.buttons then
+        local scaledX = (x - Window.translateX) / Window.scale
+        local scaledY = (y - Window.translateY) / Window.scale
+
+        for _, b in pairs(GameState.buttons) do
+            b.checkClick(scaledX, scaledY)
+        end
+    end
+end
+
 
 function CheckCollision(a, b)
     local dx = a.x - b.x
@@ -147,24 +167,6 @@ function CheckCollision(a, b)
     return distance < (a.size or a.radius) + (b.size or b.radius)
 end
 
-function SpawnBossProjectile(x, y, vx, vy)
-    local p = {
-        x = x,
-        y = y,
-        vx = vx or 0,
-        vy = vy or 200,
-        radius = 5,
-        wiggly = false
-    }
-    table.insert(BossProjectiles, p)
-end
-
-
-function ProjectileModifiers(p)
-    if Player.projectileModifiers.Wiggly then
-        p.wiggly = true
-    end
-end
 
 function DrawEntities()
     DrawPlayer()
@@ -173,18 +175,18 @@ function DrawEntities()
 end
 
 function DrawPlayer()
-    Color(Game.Color.Green, Game.Shade.Neon)
+    Game.Color.Set(Game.Color.Green, Game.Shade.Neon)
     if Player.health <= 0 then
-        Color(Game.Color.Red, Game.Shade.Dark)
+        Game.Color.Set(Game.Color.Red, Game.Shade.Dark)
     end
     love.graphics.circle("fill", Player.x, Player.y, Player.size)
     Game.Color.Clear()
 end
 
 function DrawBoss()
-    Color(Game.Color.Blue, Game.Shade.Neon)
+    Game.Color.Set(Game.Color.Blue, Game.Shade.Neon)
     if Boss.health <= 0 then
-        Color(Game.Color.Red, Game.Shade.Dark)
+        Game.Color.Set(Game.Color.Red, Game.Shade.Dark)
     end
     love.graphics.circle("fill", Boss.x, Boss.y, Boss.size)
     Game.Color.Clear()
@@ -192,9 +194,6 @@ end
 
 function DrawProjectiles()
     for _, p in ipairs(Projectiles.list) do
-        love.graphics.circle("fill", p.x, p.y, p.radius)
-    end
-    for _, p in ipairs(BossProjectiles) do
         love.graphics.circle("fill", p.x, p.y, p.radius)
     end
 end
@@ -208,48 +207,4 @@ end
 function love.resize (w, h)
 	Resize(w, h) -- update new translation and scale
     print("New window size: ", w, h)
-end
-
-function Color(color, shade)
-    local r, g, b, a = 1, 1, 1, 1
-
-    -- Base color mapping
-    if color == Game.Color.Black then
-        r, g, b = 0, 0, 0
-    elseif color == Game.Color.White then
-        r, g, b = 1, 1, 1
-    elseif color == Game.Color.Red then
-        r, g, b = 1, 0, 0
-    elseif color == Game.Color.Orange then
-        r, g, b = 1, 0.5, 0
-    elseif color == Game.Color.Yellow then
-        r, g, b = 1, 1, 0
-    elseif color == Game.Color.Green then
-        r, g, b = 0, 1, 0
-    elseif color == Game.Color.Blue then
-        r, g, b = 0, 0, 1
-    elseif color == Game.Color.Purple then
-        r, g, b = 0.5, 0, 1
-    elseif color == Game.Color.Pink then
-        r, g, b = 1, 0.3, 0.6
-    elseif color == Game.Color.Brown then
-        r, g, b = 0.5, 0.25, 0.1
-    end
-
-    -- Shade modifiers
-    if shade == Game.Shade.Dark then
-        r = r * 0.4
-        g = g * 0.4
-        b = b * 0.4
-    elseif shade == Game.Shade.Light then
-        r = r + (1 - r) * 0.5
-        g = g + (1 - g) * 0.5
-        b = b + (1 - b) * 0.5
-    elseif shade == Game.Shade.Neon then
-        r = r + (1 - r) * 0.2
-        g = g + (1 - g) * 0.2
-        b = b + (1 - b) * 0.2
-    end
-
-    love.graphics.setColor(r, g, b, a)
 end
