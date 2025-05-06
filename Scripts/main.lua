@@ -1,3 +1,8 @@
+local love = require "love"
+local player = require "player"
+local game = require "game"
+local projectile = require "projectile"
+
 
 function love.load()
     InitWindow()
@@ -28,52 +33,16 @@ function InitWindow()
 end
 
 function InitStage()
-    InitPlayer()
-    InitHelpers()
+    Game = game()
+    Player = player(Width / 2, Height * 3 / 4)
     InitBoss()
     InitEntities()
+    Projectiles = projectile()
 end
 
-function InitHelpers()
-    Direction = {}
-    Direction.Left = "left"
-    Direction.Right = "right"
-    Direction.Up = "up"
-    Direction.Down = "down"
-    Colors = {}
-    Colors.Red = "red"
-    Colors.Orange = "orange"
-    Colors.Yellow = "yellow"
-    Colors.Green = "green"
-    Colors.Blue = "blue"
-    Colors.Purple = "purple"
-    Colors.Pink = "pink"
-    Colors.Brown = "brown"
-    Colors.White = "white"
-    Colors.Black = "black"
 
-    Shades = {}
-    Shades.Dark = "dark"
-    Shades.Light = "light"
-    Shades.Neon = "neon"
-
-end
-
-function InitPlayer()
-    Player = {}
-    Player.x = Width/2
-    Player.y = Height*3/4
-    Player.vx = 0
-    Player.vy = 0
-    Player.size = 10
-    Player.speed = 300
-    Player.fireCooldown = 0.05 -- seconds between shots
-    Player.fireTimer = 0
-    Player.projectileModifiers = {}
-end
 
 function InitEntities()
-    Projectiles = {}
     BossProjectiles = {}
 end
 
@@ -82,8 +51,8 @@ function InitBoss()
     Boss.x = Width/2
     Boss.y = Height*1/4
     Boss.size = 50
-    Boss.health = 10
-    Boss.fireCooldown = 0.5  -- seconds between shots
+    Boss.health = 50
+    Boss.fireCooldown = 0.75  -- seconds between shots
     Boss.fireTimer = 0
     Boss.SpiralAngle = 0
 end
@@ -135,8 +104,8 @@ function FireRadialProjectiles()
 end
 
 function FireSineProjectiles()
-    local bullets = 5
-    local spread = math.rad(50) -- total cone angle
+    local bullets = 10
+    local spread = math.rad(120) -- total cone angle
     local dx = Player.x - Boss.x
     local dy = Player.y - Boss.y
     local baseAngle = math.atan(dy / dx)
@@ -179,41 +148,7 @@ function FireAimedProjectile(target)
 end
 
 
-function MovePlayer(direction, dt)
-    local dx, dy = 0, 0
-    local magnitude = Player.speed * dt
-    if direction == Direction.Left then
-        dx = dx - 1
-    end
-    if direction == Direction.Right then
-        dx = dx + 1
-    end
-    if direction == Direction.Up then
-        dy = dy - 1
-    end
-    if direction == Direction.Down then
-        dy = dy + 1
-    end
-    if direction == Direction.None then
-        dx = 0
-        dy = 0
-    end
-    if dx ~= 0 or dy ~= 0 then
-        local len = math.sqrt(dx * dx + dy * dy)
-        dx = dx / len
-        dy = dy / len
-    end
 
-    Player.vx = dx * magnitude/dt
-    Player.vy = dy * magnitude/dt
-
-    Player.x = Player.x + Player.vx * dt
-    Player.y = Player.y + Player.vy * dt
-
-    Player.x = math.max(Player.size, math.min(Window.width - Player.size, Player.x))
-    Player.y = math.max(Player.size, math.min(Window.height - Player.size, Player.y))
-
-end
 
 function WithinBounds()
     if Player.x + 10 <= Window.width and Player.x - 10 >= 0 and Player.y + 10 <= Window.height and Player.y - 10 >= 0 then
@@ -226,19 +161,19 @@ end
 function GetKeys(dt)
     if love.keyboard.isDown('w', 'a', 's', 'd') then
         if love.keyboard.isDown("d") and WithinBounds() then
-            MovePlayer(Direction.Right, dt)
+            Player.move(Game.Direction.Right, dt)
         end
         if love.keyboard.isDown("a") and WithinBounds() then
-            MovePlayer(Direction.Left, dt)
+            Player.move(Game.Direction.Left, dt)
         end
         if love.keyboard.isDown("s") and WithinBounds() then
-            MovePlayer(Direction.Down, dt)
+            Player.move(Game.Direction.Down, dt)
         end
         if love.keyboard.isDown("w") and WithinBounds() then
-            MovePlayer(Direction.Up, dt)
+            Player.move(Game.Direction.Up, dt)
         end
     else
-        MovePlayer(Direction.None, dt)
+        Player.move(Game.Direction.None, dt)
     end
     if love.keyboard.isDown("f") then
         if love.window.getFullscreen() then
@@ -250,15 +185,15 @@ function GetKeys(dt)
         end
     end
     if love.keyboard.isDown("space") and Player.fireTimer <= 0 then
-        SpawnProjectile(Player.x, Player.y, Player.vx, Player.vy)
+        Projectiles.spawn(Player, Player.vx * .5, -900 + Player.vy * 0.3)
         Player.fireTimer = Player.fireCooldown
     end
 end
 
 
 function UpdateProjectiles(dt)
-    for i = #Projectiles, 1, -1 do
-        local p = Projectiles[i]
+    for i = #Projectiles.list, 1, -1 do
+        local p = Projectiles.list[i]
         p.y = p.y + p.vy * dt
         if p.wiggly then
             p.x = p.spawnX + math.sin(p.y * 0.05) * 30
@@ -274,7 +209,7 @@ function UpdateProjectiles(dt)
                 print("Boss was hit!")
                 Boss.health = Boss.health - 1
             end
-            table.remove(Projectiles, i)
+            table.remove(Projectiles.list, i)
         end
     end
 
@@ -308,6 +243,7 @@ function UpdateProjectiles(dt)
         if hitPlayer or outOfBounds then
             if hitPlayer then
                 print("Player was hit!")
+                Player.health = Player.health - 1
             end
             table.remove(BossProjectiles, i)
         end
@@ -325,20 +261,6 @@ function CheckCollision(a, b)
     local dy = a.y - b.y
     local distance = math.sqrt(dx * dx + dy * dy)
     return distance < (a.size or a.radius) + (b.size or b.radius)
-end
-
-function SpawnProjectile(x, y, vx, vy)
-    local p = {
-        x = x,
-        y = y,
-        spawnX = x,
-        vx = vx * .5,
-        vy = -900 + vy * .3,
-        radius = 3,
-        wiggly = false
-    }
-    ProjectileModifiers(p)
-    table.insert(Projectiles, p)
 end
 
 function SpawnBossProjectile(x, y, vx, vy)
@@ -367,22 +289,25 @@ function DrawEntities()
 end
 
 function DrawPlayer()
-    Color(Colors.Green, Shades.Neon)
+    Color(Game.Color.Green, Game.Shade.Neon)
+    if Player.health <= 0 then
+        Color(Game.Color.Red, Game.Shade.Dark)
+    end
     love.graphics.circle("fill", Player.x, Player.y, Player.size)
-    ResetColor()
+    Game.Color.Clear()
 end
 
 function DrawBoss()
-    Color(Colors.Blue, Shades.Neon)
+    Color(Game.Color.Blue, Game.Shade.Neon)
     if Boss.health <= 0 then
-        Color(Colors.Red, Shades.Dark)
+        Color(Game.Color.Red, Game.Shade.Dark)
     end
     love.graphics.circle("fill", Boss.x, Boss.y, Boss.size)
-    ResetColor()
+    Game.Color.Clear()
 end
 
 function DrawProjectiles()
-    for _, p in ipairs(Projectiles) do
+    for _, p in ipairs(Projectiles.list) do
         love.graphics.circle("fill", p.x, p.y, p.radius)
     end
     for _, p in ipairs(BossProjectiles) do
@@ -405,46 +330,42 @@ function Color(color, shade)
     local r, g, b, a = 1, 1, 1, 1
 
     -- Base color mapping
-    if color == Colors.Black then
+    if color == Game.Color.Black then
         r, g, b = 0, 0, 0
-    elseif color == Colors.White then
+    elseif color == Game.Color.White then
         r, g, b = 1, 1, 1
-    elseif color == Colors.Red then
+    elseif color == Game.Color.Red then
         r, g, b = 1, 0, 0
-    elseif color == Colors.Orange then
+    elseif color == Game.Color.Orange then
         r, g, b = 1, 0.5, 0
-    elseif color == Colors.Yellow then
+    elseif color == Game.Color.Yellow then
         r, g, b = 1, 1, 0
-    elseif color == Colors.Green then
+    elseif color == Game.Color.Green then
         r, g, b = 0, 1, 0
-    elseif color == Colors.Blue then
+    elseif color == Game.Color.Blue then
         r, g, b = 0, 0, 1
-    elseif color == Colors.Purple then
+    elseif color == Game.Color.Purple then
         r, g, b = 0.5, 0, 1
-    elseif color == Colors.Pink then
+    elseif color == Game.Color.Pink then
         r, g, b = 1, 0.3, 0.6
-    elseif color == Colors.Brown then
+    elseif color == Game.Color.Brown then
         r, g, b = 0.5, 0.25, 0.1
     end
 
     -- Shade modifiers
-    if shade == Shades.Dark then
+    if shade == Game.Shade.Dark then
         r = r * 0.4
         g = g * 0.4
         b = b * 0.4
-    elseif shade == Shades.Light then
+    elseif shade == Game.Shade.Light then
         r = r + (1 - r) * 0.5
         g = g + (1 - g) * 0.5
         b = b + (1 - b) * 0.5
-    elseif shade == Shades.Neon then
+    elseif shade == Game.Shade.Neon then
         r = r + (1 - r) * 0.2
         g = g + (1 - g) * 0.2
         b = b + (1 - b) * 0.2
     end
 
     love.graphics.setColor(r, g, b, a)
-end
-
-function ResetColor()
-    love.graphics.setColor(1, 1, 1, 1)
 end
