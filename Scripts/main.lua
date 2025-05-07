@@ -12,12 +12,15 @@ function love.load()
     InitStage()
     Game = game()
     GameState = gamestate()
+    Debug = "nil"
+    DebugY = 100
 end
 
 function love.update(dt)
     GetKeys(dt)
     if GameState.staged and not GameState.paused and not GameState.gameover then
-        UpdateProjectiles(dt)
+        Projectiles.update(dt, Player, Boss)
+        Boss.update(dt)
         Boss.shoot(Projectiles, dt)
         Player.update(dt)
     end
@@ -28,10 +31,15 @@ function love.draw()
 	love.graphics.translate (Window.translateX, Window.translateY)
 	love.graphics.scale (Window.scale)
 	love.graphics.rectangle('line', 0, 0, 1920, 1080)
+
+    love.graphics.print(Debug, 100, DebugY)
+
     if GameState.running then
         GameState.draw()
         if GameState.staged and not GameState.paused and not GameState.gameover then 
-            DrawEntities()  
+            Player.draw()
+            Boss.draw()
+            Projectiles.draw()  
         end
     end
 end
@@ -45,30 +53,29 @@ end
 
 function InitStage()
     Player = player(Width / 2, Height * 3 / 4)
-    Projectiles = projectile()
     Boss = boss(Width / 2, Height * 1 / 4, Player)
+    Projectiles = projectile()
 end
 
 function WithinBounds()
     if Player.x + 10 <= Window.width and Player.x - 10 >= 0 and Player.y + 10 <= Window.height and Player.y - 10 >= 0 then
         return true
-    else
-        return false
     end
+    return false
 end
 
 function GetKeys(dt)
-    if love.keyboard.isDown('w', 'a', 's', 'd') then
-        if love.keyboard.isDown("d") and WithinBounds() then
+    if love.keyboard.isDown('w', 'a', 's', 'd') and WithinBounds() then
+        if love.keyboard.isDown("d") then
             Player.move(Game.Direction.Right, dt)
         end
-        if love.keyboard.isDown("a") and WithinBounds() then
+        if love.keyboard.isDown("a") then
             Player.move(Game.Direction.Left, dt)
         end
-        if love.keyboard.isDown("s") and WithinBounds() then
+        if love.keyboard.isDown("s") then
             Player.move(Game.Direction.Down, dt)
         end
-        if love.keyboard.isDown("w") and WithinBounds() then
+        if love.keyboard.isDown("w") then
             Player.move(Game.Direction.Up, dt)
         end
     else
@@ -76,55 +83,6 @@ function GetKeys(dt)
     end
     if love.keyboard.isDown("space") and Player.fireTimer <= 0 then
         Player.shoot(Projectiles)
-    end
-end
-
-
-function UpdateProjectiles(dt)
-    for i = #Projectiles.list, 1, -1 do
-        local p = Projectiles.list[i]
-        p.y = p.y + p.vy * dt
-        if p.wiggly then
-            p.x = p.spawnX + math.sin(p.y * 0.05) * 30
-        elseif p.radial then
-            p.angle = p.angle + (p.angularVelocity or 0) * dt
-            local dx = math.cos(p.angle) * (p.speed or 0) * dt
-            local dy = math.sin(p.angle) * (p.speed or 0) * dt
-            p.x = p.x + dx
-            p.y = p.y + dy
-        elseif p.sine then
-            p.wiggleTime = (p.wiggleTime or 0) + dt
-            local offset = math.sin(p.wiggleTime * 15) * 1.2
-            local forwardX = p.vx * dt
-            local forwardY = p.vy * dt
-            local perpX = p.wiggleDirX * offset
-            local perpY = p.wiggleDirY * offset
-            p.x = p.x + forwardX + perpX
-            p.y = p.y + forwardY + perpY
-        else
-            p.x = p.x + p.vx * dt
-        end
-
-        local hitBoss = p.owner == Player and CheckCollision(p, Boss)
-        local hitPlayer = p.owner == Boss and CheckCollision(p, Player)
-        local outOfBounds = p.y < -10 or p.y > Window.height + 10 or p.x < -10 or p.x > Window.width + 10
-
-        if hitBoss or hitPlayer or outOfBounds then
-            if hitBoss then
-                print("Boss was hit!")
-                Boss.health = Boss.health - 1
-                table.remove(Projectiles.list, i)
-            elseif hitPlayer then
-                print("Player was hit!")
-                Player.health = Player.health - 1
-                table.remove(Projectiles.list, i)
-                if Player.health <= 0 then
-                    --GameState.transition()
-                end
-            else
-                table.remove(Projectiles.list, i)   
-            end
-        end
     end
 end
 
@@ -156,45 +114,6 @@ function love.mousepressed(x, y, button, istouch, presses)
         for _, b in pairs(GameState.buttons) do
             b.checkClick(scaledX, scaledY)
         end
-    end
-end
-
-
-function CheckCollision(a, b)
-    local dx = a.x - b.x
-    local dy = a.y - b.y
-    local distance = math.sqrt(dx * dx + dy * dy)
-    return distance < (a.size or a.radius) + (b.size or b.radius)
-end
-
-
-function DrawEntities()
-    DrawPlayer()
-    DrawBoss()
-    DrawProjectiles()
-end
-
-function DrawPlayer()
-    Game.Color.Set(Game.Color.Green, Game.Shade.Neon)
-    if Player.health <= 0 then
-        Game.Color.Set(Game.Color.Red, Game.Shade.Dark)
-    end
-    love.graphics.circle("fill", Player.x, Player.y, Player.size)
-    Game.Color.Clear()
-end
-
-function DrawBoss()
-    Game.Color.Set(Game.Color.Blue, Game.Shade.Neon)
-    if Boss.health <= 0 then
-        Game.Color.Set(Game.Color.Red, Game.Shade.Dark)
-    end
-    love.graphics.circle("fill", Boss.x, Boss.y, Boss.size)
-    Game.Color.Clear()
-end
-
-function DrawProjectiles()
-    for _, p in ipairs(Projectiles.list) do
-        love.graphics.circle("fill", p.x, p.y, p.radius)
     end
 end
 

@@ -56,6 +56,14 @@ function Player(x, y)
     function player.update(dt)
         player.fireTimer = player.fireTimer - dt
     end
+    function player.draw()
+        Game.Color.Set(Game.Color.Green, Game.Shade.Neon)
+        if Player.health <= 0 then
+            Game.Color.Set(Game.Color.Red, Game.Shade.Dark)
+        end
+        love.graphics.circle("fill", Player.x, Player.y, Player.size)
+        Game.Color.Clear()
+    end
     return player
 end
 
