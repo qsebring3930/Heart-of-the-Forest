@@ -5,6 +5,7 @@
     "cSpell.words": [
         "Cooldown",
         "gameover",
-        "gamestate"
+        "gamestate",
+        "stagenum"
     ]
 }

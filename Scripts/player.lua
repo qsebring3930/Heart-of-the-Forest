@@ -9,7 +9,7 @@ function Player(x, y)
         vx = 0,
         vy = 0,
         size = 10,
-        speed = 300,
+        speed = 200,
         health = 5,
         fireCooldown = 0.1,
         fireTimer = 0,
@@ -61,7 +61,7 @@ function Player(x, y)
         if Player.health <= 0 then
             Game.Color.Set(Game.Color.Red, Game.Shade.Dark)
         end
-        love.graphics.circle("fill", Player.x, Player.y, Player.size)
+        love.graphics.rectangle("fill", Player.x - Player.size, Player.y - Player.size, Player.size * 2, Player.size * 2)
         Game.Color.Clear()
     end
     return player

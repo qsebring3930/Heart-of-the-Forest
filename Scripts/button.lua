@@ -13,7 +13,7 @@ function Button()
         height = 0,
         func = nil,
     }
-    function button.draw(x, y, width, height, orientation, color, text, onclick)
+    function button.draw(x, y, width, height, orientation, color, text, onclick, scale)
         button.x = x 
         button.y = y
         button.width = width
@@ -28,7 +28,8 @@ function Button()
         Game.Color.Clear()
 
         Game.Color.Set(Game.Color.Black)
-        love.graphics.print(text, button.textX, button.textY)
+        local scale = scale
+        love.graphics.print(text, button.textX - (string.len(text) * 3 * scale), button.textY - (8 * scale), 0, scale)
         Game.Color.Clear()
     end
     function button.checkClick(mx, my) 

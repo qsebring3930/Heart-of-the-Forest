@@ -8,11 +8,11 @@ local button = require "button"
 
 
 function love.load()
-    InitWindow()
-    InitStage()
     Game = game()
     GameState = gamestate()
-    Debug = "nil"
+    InitWindow()
+    InitStage()
+    Debug = ""
     DebugY = 100
 end
 
@@ -38,8 +38,8 @@ function love.draw()
         GameState.draw()
         if GameState.staged and not GameState.paused and not GameState.gameover then 
             Player.draw()
-            Boss.draw()
-            Projectiles.draw()  
+            Projectiles.draw() 
+            Boss.draw() 
         end
     end
 end
@@ -53,7 +53,9 @@ end
 
 function InitStage()
     Player = player(Width / 2, Height * 3 / 4)
-    Boss = boss(Width / 2, Height * 1 / 4, Player)
+    Boss = boss(Width / 2, Height * 1 / 4, Player, GameState.stagenum)
+    Debug = GameState.stagenum
+    Boss.stage()
     Projectiles = projectile()
 end
 
@@ -99,9 +101,12 @@ function love.keypressed(key)
         end
     elseif key == "t" then
         GameState.transition()
-    elseif key == "p" then
+    elseif key == "p" or key == "escape" then
         GameState.paused = not GameState.paused
     elseif key == "r" then
+        GameState.staged = true
+        GameState.stagenum = 1
+        GameState.gameover = false
         InitStage()
     end
 end
