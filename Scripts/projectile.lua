@@ -1,5 +1,6 @@
 local love = require "love"
 local game = require "game"
+local overlay = require "overlay"
 
 function Projectile(owner)
     local projectiles = {} 
@@ -191,10 +192,12 @@ function Projectile(owner)
                         table.remove(Projectiles.list, i)
                     elseif hitPlayer then
                         Player.health = Player.health - 1
+                        Player.hit()
                         table.remove(Projectiles.list, i)
                         if Player.health <= 0 then
-                            --GameState.staged = false
-                            --GameState.gameover = true
+                            GameState.staged = false
+                            GameState.gameover = true
+                            overlay.set(0)
                         end
                     else
                         table.remove(Projectiles.list, i)   

@@ -40,7 +40,7 @@ function Boss(x, y, player, stage)
         if boss.id == 1 then
             boss.speed = 200
             boss.size = 75
-            boss.health = 20
+            boss.health = 300
             boss.fireCooldown = 0.15
             boss.projectiles = {
                 bomb = false,
@@ -145,7 +145,7 @@ function Boss(x, y, player, stage)
             elseif mode == 5 and boss.projectiles.radial then
                 if boss.timers.radial <= 0 then
                     boss.projectileModifiers.Radial = true
-                    boss.projectileCount = 12
+                    boss.projectileCount = 18
                     for i = 0, boss.projectileCount - 1 do
                         boss.projectileIndex = i
                         projectiles.spawn(Boss)

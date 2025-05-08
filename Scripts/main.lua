@@ -5,13 +5,16 @@ local projectile = require "projectile"
 local boss = require "boss"
 local gamestate = require "gamestate"
 local button = require "button"
+local overlay = require "overlay"
 
 
 function love.load()
     Game = game()
     GameState = gamestate()
+    love.graphics.setBackgroundColor(0.6, 0, .9, 0)
     InitWindow()
     InitStage()
+    GameCanvas = love.graphics.newCanvas(Window.width, Window.height)
     Debug = ""
     DebugY = 100
 end
@@ -27,21 +30,28 @@ function love.update(dt)
 end
 
 function love.draw()
-    -- first translate, then scale
-	love.graphics.translate (Window.translateX, Window.translateY)
-	love.graphics.scale (Window.scale)
-	love.graphics.rectangle('line', 0, 0, 1920, 1080)
+    -- draw game to canvas
+    love.graphics.setCanvas(GameCanvas)
+    love.graphics.clear()
 
+    love.graphics.translate(Window.translateX, Window.translateY)
+    love.graphics.scale(Window.scale)
+    love.graphics.rectangle('line', 0, 0, 1920, 1080)
     love.graphics.print(Debug, 100, DebugY)
 
     if GameState.running then
         GameState.draw()
         if GameState.staged and not GameState.paused and not GameState.gameover then 
             Player.draw()
-            Projectiles.draw() 
-            Boss.draw() 
+            Projectiles.draw()
+            Boss.draw()
         end
     end
+
+    love.graphics.setCanvas()
+
+    -- draw pixelated canvas
+    overlay.draw(GameCanvas)
 end
 
 function InitWindow()
@@ -54,7 +64,6 @@ end
 function InitStage()
     Player = player(Width / 2, Height * 3 / 4)
     Boss = boss(Width / 2, Height * 1 / 4, Player, GameState.stagenum)
-    Debug = GameState.stagenum
     Boss.stage()
     Projectiles = projectile()
 end
@@ -107,6 +116,7 @@ function love.keypressed(key)
         GameState.staged = true
         GameState.stagenum = 1
         GameState.gameover = false
+        overlay.set(0)
         InitStage()
     end
 end
@@ -123,9 +133,12 @@ function love.mousepressed(x, y, button, istouch, presses)
 end
 
 function Resize(w, h)
-    local w1, h1 = Window.width, Window.height -- target rendering resolution
-	local scale = math.min (w/w1, h/h1)
-	Window.translateX, Window.translateY, Window.scale = (w-w1*scale)/2, (h-h1*scale)/2, scale
+    local w1, h1 = Window.width, Window.height
+    local scale = math.min(w / w1, h / h1)
+    Window.translateX = (w - w1 * scale) / 2
+    Window.translateY = (h - h1 * scale) / 2
+    Window.scale = scale
+    GameCanvas = love.graphics.newCanvas(w, h)  -- recreate canvas
 end
 
 function love.resize (w, h)

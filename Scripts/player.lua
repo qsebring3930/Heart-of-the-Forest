@@ -1,5 +1,6 @@
 local love = require "love"
 local game = require "game"
+local overlay = require "overlay"
 
 function Player(x, y)
     local Game = game()
@@ -63,6 +64,9 @@ function Player(x, y)
         end
         love.graphics.rectangle("fill", Player.x - Player.size, Player.y - Player.size, Player.size * 2, Player.size * 2)
         Game.Color.Clear()
+    end
+    function player.hit()
+        overlay.increment()
     end
     return player
 end

@@ -12,7 +12,8 @@ function GameState()
         paused = false,
         running = true,
         stagenum = 0,
-        buttons = {}
+        buttons = {},
+        backgroundColor = Game.Color.Purple
     }
     function gamestate.transition()
         if gamestate.menu then
