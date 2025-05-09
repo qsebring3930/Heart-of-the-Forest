@@ -1,6 +1,6 @@
 local love = require "love"
-local game = require "game"
-local overlay = require "overlay"
+local game = require "Scripts/game"
+local overlay = require "Scripts/overlay"
 
 function Player(x, y)
     local Game = game()
@@ -11,7 +11,6 @@ function Player(x, y)
         vy = 0,
         size = 10,
         speed = 200,
-        health = 5,
         fireCooldown = 0.1,
         fireTimer = 0,
         projectileModifiers = {}
@@ -59,9 +58,6 @@ function Player(x, y)
     end
     function player.draw()
         Game.Color.Set(Game.Color.Green, Game.Shade.Neon)
-        if Player.health <= 0 then
-            Game.Color.Set(Game.Color.Red, Game.Shade.Dark)
-        end
         love.graphics.rectangle("fill", Player.x - Player.size, Player.y - Player.size, Player.size * 2, Player.size * 2)
         Game.Color.Clear()
     end

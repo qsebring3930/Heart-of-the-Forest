@@ -1,6 +1,6 @@
 local love = require "love"
-local game = require "game"
-local overlay = require "overlay"
+local game = require "Scripts/game"
+local overlay = require "Scripts/overlay"
 
 function Projectile(owner)
     local projectiles = {} 
@@ -13,7 +13,7 @@ function Projectile(owner)
             spawnX = owner.x,
             vx = owner.vx or 0,
             vy = owner.vy or 0,
-            radius = 7.5,
+            radius = 2.5,
             speed = 400,
             angularVelocity = 0,
             angle = 0,
@@ -30,7 +30,7 @@ function Projectile(owner)
             active = true
         }
         if p.spiral then
-            p.speed = 150
+            p.speed = 250
             p.color = Game.Color.Pink
             p.shade = Game.Color.Light
             p.angularVelocity = .25
@@ -41,8 +41,8 @@ function Projectile(owner)
             end
         end
         if p.tracking and owner.target then
-            p.speed = 150
-            p.color = Game.Color.Red
+            p.speed = 250
+            p.color = Game.Color.Yellow
             p.shade = Game.Shade.Neon
             local dx = owner.target.x - owner.x
             local dy = owner.target.y - owner.y
@@ -51,7 +51,7 @@ function Projectile(owner)
             p.vy = (dy / len) * p.speed
         end
         if p.sine then 
-            p.speed = 150
+            p.speed = 250
             p.color = Game.Color.Orange
             p.shade = Game.Shade.Neon
             local angle = owner.angle + (owner.projectileIndex / (owner.projectileCount - 1)) * math.rad(120)
@@ -68,7 +68,7 @@ function Projectile(owner)
             p.shade = Game.Color.Dark
             p.radius = 15
             p.lifetime = 50
-            p.speed = 75
+            p.speed = 175
             p.targetX = owner.target.x
             p.targetY = owner.target.y
             local dx = owner.target.x - owner.x
@@ -78,7 +78,7 @@ function Projectile(owner)
             p.vy = (dy / len) * p.speed
         end
         if p.zigzag then
-            p.speed = 150
+            p.speed = 250
             local angle = owner.angle + (owner.projectileIndex / (owner.projectileCount - 1)) * math.rad(80)
             p.vx = math.cos(angle) * p.speed
             p.vy = math.sin(angle) * p.speed
@@ -88,7 +88,7 @@ function Projectile(owner)
             p.zigzagTimer = 5
         end
         if p.radial then
-            p.speed = 150
+            p.speed = 250
             p.color = Game.Color.Red
             p.shade = Game.Color.Light
             if owner.projectileIndex and owner.projectileCount then
@@ -191,10 +191,9 @@ function Projectile(owner)
                         end
                         table.remove(Projectiles.list, i)
                     elseif hitPlayer then
-                        Player.health = Player.health - 1
                         Player.hit()
                         table.remove(Projectiles.list, i)
-                        if Player.health <= 0 then
+                        if overlay.intensity >= 2 then
                             GameState.staged = false
                             GameState.gameover = true
                             overlay.set(0)

@@ -1,6 +1,6 @@
 local love = require "love"
-local game = require "game"
-local button = require "button"
+local game = require "Scripts/game"
+local button = require "Scripts/button"
 
 function GameState()
     local Game = game()
@@ -13,7 +13,6 @@ function GameState()
         running = true,
         stagenum = 0,
         buttons = {},
-        backgroundColor = Game.Color.Purple
     }
     function gamestate.transition()
         if gamestate.menu then

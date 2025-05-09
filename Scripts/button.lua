@@ -1,5 +1,5 @@
 local love = require "love"
-local game = require "game"
+local game = require "Scripts/game"
 
 function Button()
     local Game = game()

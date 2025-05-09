@@ -17,8 +17,14 @@ function overlay.set(val)
     overlay.intensity = val
 end
 
+function overlay.update(dt)
+    if overlay.intensity > 0 then
+        overlay.intensity = overlay.intensity - dt / 10
+    end
+end
+
 function overlay.increment()
-    overlay.intensity = overlay.intensity + .5
+    overlay.intensity = overlay.intensity + .1
 end
 
 function overlay.draw(canvas)
