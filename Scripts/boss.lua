@@ -46,12 +46,12 @@ function Boss(x, y, player, stage, images)
         if boss.id == 1 then
             boss.speed = 200
             boss.size = 75
-            boss.health = 50
-            boss.projectileBase = .5
+            boss.health = 250
+            boss.projectileBase = .75
             boss.projectiles = {
                 bomb = false,
-                tracking = {2,4},
-                zigzag = {0,1,4,5},
+                tracking = {1,5},
+                zigzag = {0,2,4},
                 sine = false,
                 spiral = false,
                 radial = {1,3,5}
@@ -66,33 +66,35 @@ function Boss(x, y, player, stage, images)
             boss.projectiles = {
                 bomb = {4},
                 tracking = false,
-                zigzag = {1,7},
+                zigzag = {0,2,6},
                 sine = false,
-                spiral = {0,2,4,6},
+                spiral = {1,3,5,7},
                 radial = {1,3,5,7}
             }
-            boss.projectileModes = 7
+            boss.projectileBase = .6
+            boss.projectileModes = 8
             boss.spriteScale = 1
             boss.sprite = Animation.new(boss.images.cat, 200, 200, 1, 1)
         elseif boss.id == 3 then
             boss.speed = 200
-            boss.size = 20
-            boss.health = 20
+            boss.size = 50
+            boss.health = 450
             boss.projectiles = {
-                bomb = true,
-                tracking = false,
-                zigzag = true,
-                sine = false,
-                spiral = true,
-                radial = true
+                bomb = false,
+                tracking = {0,5},
+                zigzag = {2,4,8},
+                sine = {1,3,5,7,9},
+                spiral = {0,1,4,5,8,9},
+                radial = {2,3,6,7}
             }
-            boss.projectileModes = 7
+            boss.projectileBase = .5
+            boss.projectileModes = 10
             boss.spriteScale = 2
-            boss.sprite = Animation.new(boss.images.deer, 200, 200, 1, 1)
+            boss.sprite = Animation.new(boss.images.deer, 70, 87, 1, 1)
         elseif boss.id == 4 then
             boss.speed = 200
-            boss.size = 20
-            boss.health = 20
+            boss.size = 50
+            boss.health = 550
             boss.projectiles = {
                 bomb = {4},
                 tracking = false,
@@ -101,13 +103,14 @@ function Boss(x, y, player, stage, images)
                 spiral = {0,2,4,6},
                 radial = {1,3,5,7}
             }
-            boss.projectileModes = 7
-            boss.spriteScale = 2
+            boss.projectileBase = .5
+            boss.projectileModes = 8
+            boss.spriteScale = 1
             boss.sprite = Animation.new(boss.images.mushroom, 200, 200, 1, 1)
         elseif boss.id == 5 then
             boss.speed = 200
-            boss.size = 20
-            boss.health = 20
+            boss.size = 50
+            boss.health = 650
             boss.projectiles = {
                 bomb = {4},
                 tracking = false,
@@ -116,8 +119,9 @@ function Boss(x, y, player, stage, images)
                 spiral = {0,2,4,6},
                 radial = {1,3,5,7}
             }
+            boss.projectileBase = .4
             boss.projectileModes = 7
-            boss.spriteScale = 2
+            boss.spriteScale = 1
             boss.sprite = Animation.new(boss.images.flower, 200, 200, 1, 1)
         end
     end

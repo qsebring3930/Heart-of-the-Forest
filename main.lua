@@ -12,9 +12,9 @@ local overlay = require "Scripts/overlay"
 
 function love.load()
     backgroundMusic = love.audio.newSource("Assets/Sounds/Menu.wav", "stream")
-    backgroundMusic:setLooping(true)
-    backgroundMusic:setVolume(0.5)  -- optional volume control
-    backgroundMusic:play()
+   -- backgroundMusic:setLooping(true)
+   -- backgroundMusic:setVolume(0.5)  -- optional volume control
+   -- backgroundMusic:play()
     Game = game()
     GameState = gamestate()
     love.graphics.setBackgroundColor(0.36, 0, .64, 0)
