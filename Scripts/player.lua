@@ -1,9 +1,11 @@
 local love = require "love"
 local game = require "Scripts/game"
 local overlay = require "Scripts/overlay"
+local animation = require "Scripts/animation"
 
-function Player(x, y)
+function Player(x, y, image)
     local Game = game()
+    local Animation = animation()
     local player = {
         x = x,
         y = y,
@@ -13,7 +15,8 @@ function Player(x, y)
         speed = 200,
         fireCooldown = 0.1,
         fireTimer = 0,
-        projectileModifiers = {}
+        projectileModifiers = {},
+        anim = Animation.new(image, 162, 79, 4, 0.1)
     }
     function player.move(direction, dt)
         local dx, dy = 0, 0
@@ -55,11 +58,10 @@ function Player(x, y)
     end
     function player.update(dt)
         player.fireTimer = player.fireTimer - dt
+        player.anim.update(dt)
     end
     function player.draw()
-        Game.Color.Set(Game.Color.Green, Game.Shade.Neon)
-        love.graphics.rectangle("fill", Player.x - Player.size, Player.y - Player.size, Player.size * 2, Player.size * 2)
-        Game.Color.Clear()
+        player.anim.draw(player.x, player.y, 0.3)
     end
     function player.hit()
         overlay.increment()

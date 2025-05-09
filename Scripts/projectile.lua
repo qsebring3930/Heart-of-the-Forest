@@ -1,10 +1,13 @@
 local love = require "love"
 local game = require "Scripts/game"
 local overlay = require "Scripts/overlay"
+local animation = require "Scripts/animation"
 
-function Projectile(owner)
+function Projectile(images)
     local projectiles = {} 
+    local sprites = images
     local Game = game()
+    local Animation = animation()
     function spawn(owner)
         local p = {
             owner = owner,
@@ -27,7 +30,9 @@ function Projectile(owner)
             split = owner.projectileModifiers.Split or nil,
             zigzag = owner.projectileModifiers.Zigzag or nil,
             radial = owner.projectileModifiers.Radial or nil,
-            active = true
+            active = true,
+            sprite = nil,
+            spriteScale = 0
         }
         if p.spiral then
             p.speed = 250
@@ -39,6 +44,8 @@ function Projectile(owner)
             else
                 p.angle = love.timer.getTime() * 4 * math.pi  -- fallback
             end
+            p.sprite = Animation.new(sprites.point, 29, 30, 1, 1)
+            p.spriteScale = 1
         end
         if p.tracking and owner.target then
             p.speed = 250
@@ -49,6 +56,8 @@ function Projectile(owner)
             local len = math.sqrt(dx * dx + dy * dy)
             p.vx = (dx / len) * p.speed
             p.vy = (dy / len) * p.speed
+            p.sprite = Animation.new(sprites.tracker, 37, 38, 1, 1)
+            p.spriteScale = 1
         end
         if p.sine then 
             p.speed = 250
@@ -62,6 +71,8 @@ function Projectile(owner)
             p.wiggleTime = 0
             p.wiggleDirX = perpX
             p.wiggleDirY = perpY
+            p.sprite = Animation.new(sprites.drop, 45, 57, 1, 1)
+            p.spriteScale = 1
         end
         if p.bomb and owner.target then
             p.color = Game.Color.Purple
@@ -76,6 +87,8 @@ function Projectile(owner)
             local len = math.sqrt(dx * dx + dy * dy)
             p.vx = (dx / len) * p.speed
             p.vy = (dy / len) * p.speed
+            p.sprite = Animation.new(sprites.bomb, 26, 28, 1, 1)
+            p.spriteScale = 1
         end
         if p.zigzag then
             p.speed = 250
@@ -86,6 +99,8 @@ function Projectile(owner)
             p.shade = Game.Shade.Light
             p.zigzagDir = -1
             p.zigzagTimer = 5
+            p.sprite = Animation.new(sprites.bolt, 43, 45, 1, 1)
+            p.spriteScale = 1
         end
         if p.radial then
             p.speed = 250
@@ -96,12 +111,16 @@ function Projectile(owner)
             else
                 p.angle = love.timer.getTime() * 4 * math.pi  -- fallback
             end
+            p.sprite = Animation.new(sprites.ball, 40, 41, 1, 1)
+            p.spriteScale = 1
         end
         if owner == Player then
             p.speed = 600
             p.radius = 3
             p.vx = owner.vx * .5
             p.vy = -900 + owner.vy * 0.3
+            p.sprite = Animation.new(sprites.spit, 45, 35, 1, 1)
+            p.spriteScale = .5
         end
         table.insert(projectiles, p)
     end
@@ -175,6 +194,7 @@ function Projectile(owner)
                     p.y = p.y + p.vy * dt
                 end
                 p.radius = p.radius + 1.25 * dt
+                p.sprite.update(dt)
                 local isBossProjectile = (p.owner == Boss) or (p.split)
                 local hitBoss = p.owner == Player and CheckCollision(p, Boss)
                 local hitPlayer = isBossProjectile and CheckCollision(p, Player)
@@ -187,6 +207,7 @@ function Projectile(owner)
                         Boss.health = Boss.health - 1
                         if Boss.health <= 0 then
                             GameState.transition()
+                            overlay.set(0)
                             InitStage()
                         end
                         table.remove(Projectiles.list, i)
@@ -213,8 +234,7 @@ function Projectile(owner)
     end
     function DrawProjectiles()
         for _, p in ipairs(Projectiles.list) do
-            Game.Color.Set(p.color, p.shade)
-            love.graphics.circle("fill", p.x, p.y, p.radius)
+            p.sprite.draw(p.x, p.y, p.spriteScale)
         end
         Game.Color.Clear()
     end

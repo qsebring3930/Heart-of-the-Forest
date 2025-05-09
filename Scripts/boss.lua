@@ -1,6 +1,8 @@
 local love = require "love"
+local animation = require "Scripts/animation"
 
-function Boss(x, y, player, stage)
+function Boss(x, y, player, stage, images)
+    local Animation = animation()
     local boss = {
         id = stage, --
         x = x,
@@ -35,7 +37,10 @@ function Boss(x, y, player, stage)
             sine = false,
             spiral = false,
             radial = false
-        }
+        },
+        images = images,
+        sprite = nil,
+        spriteScale = 0
     }
     function boss.stage()
         if boss.id == 1 then
@@ -52,6 +57,8 @@ function Boss(x, y, player, stage)
                 radial = {1,3,5}
             }
             boss.projectileModes = 6
+            boss.spriteScale = 2
+            boss.sprite = Animation.new(boss.images.zapper, 70, 70, 1, 1)
         elseif boss.id == 2 then
             boss.speed = 200
             boss.size = 50
@@ -65,6 +72,8 @@ function Boss(x, y, player, stage)
                 radial = {1,3,5,7}
             }
             boss.projectileModes = 7
+            boss.spriteScale = 1
+            boss.sprite = Animation.new(boss.images.cat, 200, 200, 1, 1)
         elseif boss.id == 3 then
             boss.speed = 200
             boss.size = 20
@@ -77,30 +86,39 @@ function Boss(x, y, player, stage)
                 spiral = true,
                 radial = true
             }
+            boss.projectileModes = 7
+            boss.spriteScale = 2
+            boss.sprite = Animation.new(boss.images.deer, 200, 200, 1, 1)
         elseif boss.id == 4 then
             boss.speed = 200
             boss.size = 20
             boss.health = 20
             boss.projectiles = {
-                bomb = true,
+                bomb = {4},
                 tracking = false,
-                zigzag = true,
+                zigzag = {1,7},
                 sine = false,
-                spiral = true,
-                radial = true
+                spiral = {0,2,4,6},
+                radial = {1,3,5,7}
             }
+            boss.projectileModes = 7
+            boss.spriteScale = 2
+            boss.sprite = Animation.new(boss.images.mushroom, 200, 200, 1, 1)
         elseif boss.id == 5 then
             boss.speed = 200
             boss.size = 20
             boss.health = 20
             boss.projectiles = {
-                bomb = true,
+                bomb = {4},
                 tracking = false,
-                zigzag = true,
+                zigzag = {1,7},
                 sine = false,
-                spiral = true,
-                radial = true
+                spiral = {0,2,4,6},
+                radial = {1,3,5,7}
             }
+            boss.projectileModes = 7
+            boss.spriteScale = 2
+            boss.sprite = Animation.new(boss.images.flower, 200, 200, 1, 1)
         end
     end
     function boss.update(dt)
@@ -124,6 +142,7 @@ function Boss(x, y, player, stage)
                 boss.timers[k] = v - dt
             end
         end
+        boss.sprite.update(dt)
     end
     function boss.shoot(projectiles, dt)
         local mode = boss.patternIndex
@@ -215,12 +234,7 @@ function Boss(x, y, player, stage)
         end
     end
     function boss.draw()
-        Game.Color.Set(Game.Color.Blue, Game.Shade.Neon)
-        if Boss.health <= 0 then
-            Game.Color.Set(Game.Color.Red, Game.Shade.Dark)
-        end
-        love.graphics.circle("fill", Boss.x, Boss.y, Boss.size)
-        Game.Color.Clear()
+        boss.sprite.draw(boss.x, boss.y, boss.spriteScale)
     end
     function boss.modeAllowed(list, mode)
         if list == false then return false end

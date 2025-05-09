@@ -8,6 +8,8 @@ local button = require "Scripts/button"
 local overlay = require "Scripts/overlay"
 
 
+
+
 function love.load()
     backgroundMusic = love.audio.newSource("Assets/Sounds/Menu.wav", "stream")
     backgroundMusic:setLooping(true)
@@ -66,10 +68,27 @@ function InitWindow()
 end
 
 function InitStage()
-    Player = player(Width / 2, Height * 3 / 4)
-    Boss = boss(Width / 2, Height * 1 / 4, Player, GameState.stagenum)
+    local bossImages = {
+        zapper = love.graphics.newImage("Assets/Sprites/zapper.png"),
+        cat = love.graphics.newImage("Assets/Sprites/cat.png"),
+        deer = love.graphics.newImage("Assets/Sprites/deer.png"),
+        mushroom = love.graphics.newImage("Assets/Sprites/mushroom.png"),
+        flower = love.graphics.newImage("Assets/Sprites/flower.png")
+    }
+    local projectileImages = {
+        ball = love.graphics.newImage("Assets/Sprites/ball.png"),
+        drop = love.graphics.newImage("Assets/Sprites/drop.png"),
+        tracker = love.graphics.newImage("Assets/Sprites/tracker.png"),
+        point = love.graphics.newImage("Assets/Sprites/point.png"),
+        fire = love.graphics.newImage("Assets/Sprites/fire.png"),
+        bolt = love.graphics.newImage("Assets/Sprites/bolt.png"),
+        bomb = love.graphics.newImage("Assets/Sprites/bomb.png"),
+        spit = love.graphics.newImage("Assets/Sprites/spit.png"),
+    }
+    Player = player(Width / 2, Height * 3 / 4, love.graphics.newImage("Assets/Sprites/moth-ss.png"))
+    Boss = boss(Width / 2, Height * 1 / 4, Player, GameState.stagenum, bossImages)
     Boss.stage()
-    Projectiles = projectile()
+    Projectiles = projectile(projectileImages)
 end
 
 function WithinBounds()
