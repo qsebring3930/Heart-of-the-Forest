@@ -38,6 +38,9 @@ function love.update(dt)
         Projectiles.update(dt, Player, Boss)
         Boss.update(dt)
         Boss.shoot(Projectiles, dt)
+        if Player.fireTimer <= 0 then
+            Player.shoot(Projectiles)
+        end
         Player.update(dt)
     end
 end
