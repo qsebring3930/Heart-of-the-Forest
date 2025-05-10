@@ -39,7 +39,7 @@ end
 function love.draw()
     -- draw game to canvas
     love.graphics.setCanvas(GameCanvas)
-    love.graphics.clear()
+    love.graphics.clear(0.36, 0, 0.64, 1.0)
 
     love.graphics.translate(Window.translateX, Window.translateY)
     love.graphics.scale(Window.scale)
@@ -101,10 +101,18 @@ end
 function GetKeys(dt)
     if love.keyboard.isDown('w', 'a', 's', 'd') and WithinBounds() then
         if love.keyboard.isDown("d") then
-            Player.move(Game.Direction.Right, dt)
+            if overlay.cur == 3 and overlay.controlsBackwards > 0 then
+                Player.move(Game.Direction.Left, dt)
+            else
+                Player.move(Game.Direction.Right, dt)
+            end
         end
         if love.keyboard.isDown("a") then
-            Player.move(Game.Direction.Left, dt)
+            if overlay.cur == 3 and overlay.controlsBackwards > 0 then
+                Player.move(Game.Direction.Right, dt)
+            else
+                Player.move(Game.Direction.Left, dt)
+            end
         end
         if love.keyboard.isDown("s") then
             Player.move(Game.Direction.Down, dt)
@@ -142,6 +150,7 @@ function love.keypressed(key)
         GameState.stagenum = 1
         GameState.gameover = false
         overlay.set(0)
+        overlay.cur = 1
         InitStage()
     end
 end

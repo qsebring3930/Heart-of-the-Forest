@@ -1,6 +1,7 @@
 local love = require "love"
 local game = require "Scripts/game"
 local button = require "Scripts/button"
+local overlay = require "Scripts/overlay"
 
 function GameState()
     local Game = game()
@@ -9,6 +10,7 @@ function GameState()
         menu = true,
         staged = false,
         gameover = false,
+        win = false,
         paused = false,
         running = true,
         stagenum = 0,
@@ -23,6 +25,11 @@ function GameState()
         elseif gamestate.staged then
             if gamestate.stagenum < 5 then
                 gamestate.stagenum = gamestate.stagenum + 1
+                overlay.transition()
+            else
+                gamestate.staged = false
+                gamestate.gameover = true
+                gamestate.win = true
             end
         end
         --IMPLEMENT ME
@@ -38,7 +45,7 @@ function GameState()
         if gamestate.paused then
             Game.Color.Set(Game.Color.Red, Game.Shade.Neon)
             love.graphics.circle("fill", 10, 10, 10)
-            love.graphics.print("PAUSED", 50, 50)
+            love.graphics.print("PAUSED", 475, 300, 0, 5, 5)
             Game.Color.Clear()
         else
             if gamestate.menu then
@@ -60,10 +67,17 @@ function GameState()
                 love.graphics.print("STAGED", 50, 50)
                 Game.Color.Clear()
             elseif gamestate.gameover then
-                Game.Color.Set(Game.Color.Yellow, Game.Shade.Neon)
-                love.graphics.circle("fill", 10, 10, 10)
-                love.graphics.print("GAME OVER", 50, 50)
-                Game.Color.Clear()
+                if not gamestate.win then
+                    Game.Color.Set(Game.Color.Yellow, Game.Shade.Neon)
+                    love.graphics.circle("fill", 10, 10, 10)
+                    love.graphics.print("GAME OVER", 475, 300, 0, 5, 5)
+                    Game.Color.Clear()
+                else
+                    Game.Color.Set(Game.Color.White, Game.Shade.Neon)
+                    love.graphics.circle("fill", 10, 10, 10)
+                    love.graphics.print("YOU WIN!", 475, 300, 0, 5, 5)
+                    Game.Color.Clear()
+                end
             end
                 
         end

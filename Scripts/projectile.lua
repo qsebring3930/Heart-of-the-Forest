@@ -232,7 +232,7 @@ function Projectile(images)
                         end
                         table.remove(Projectiles.list, i)
                     elseif hitPlayer then
-                        --Player.hit()
+                        Player.hit()
                         table.remove(Projectiles.list, i)
                         if overlay.intensity >= 2 then
                             GameState.staged = false
