@@ -29,6 +29,7 @@ function Boss(x, y, player, stage, images)
             sine = 0,
             spiral = 0,
             radial = 0,
+            spiral2 = 0,
         },
         projectiles = {
             bomb = false,
@@ -36,17 +37,35 @@ function Boss(x, y, player, stage, images)
             zigzag = false,
             sine = false,
             spiral = false,
-            radial = false
+            radial = false,
+            spiral2 = false
         },
         images = images,
         sprite = nil,
         spriteScale = 0
     }
     function boss.stage()
+        --[[if boss.id == 1 then
+            boss.speed = 200
+            boss.size = 75
+            boss.health = 20 --250
+            boss.projectileBase = .5
+            boss.projectiles = {
+                bomb = {1},
+                tracking = {1},
+                zigzag = {1},
+                sine = {1},
+                spiral = {1},
+                radial = {1},
+                spiral2 = {1}
+            }
+            boss.projectileModes = 2
+            boss.spriteScale = 2
+            boss.sprite = Animation.new(boss.images.zapper, 70, 70, 1, 1)--]]
         if boss.id == 1 then
             boss.speed = 200
             boss.size = 75
-            boss.health = 250
+            boss.health = 20 --250
             boss.projectileBase = .75
             boss.projectiles = {
                 bomb = false,
@@ -54,7 +73,8 @@ function Boss(x, y, player, stage, images)
                 zigzag = {0,2,4},
                 sine = false,
                 spiral = false,
-                radial = {1,3,5}
+                radial = {1,3,5},
+                spiral2 = false
             }
             boss.projectileModes = 6
             boss.spriteScale = 2
@@ -62,14 +82,15 @@ function Boss(x, y, player, stage, images)
         elseif boss.id == 2 then
             boss.speed = 200
             boss.size = 50
-            boss.health = 350
+            boss.health = 20 --350
             boss.projectiles = {
-                bomb = {4},
-                tracking = false,
+                bomb = {1,3,5,7},
+                tracking = {0,2,4,6},
                 zigzag = {0,2,6},
                 sine = false,
                 spiral = {1,3,5,7},
-                radial = {1,3,5,7}
+                radial = {0,4},
+                spiral2 = false,
             }
             boss.projectileBase = .6
             boss.projectileModes = 8
@@ -81,14 +102,15 @@ function Boss(x, y, player, stage, images)
             boss.health = 450
             boss.projectiles = {
                 bomb = false,
-                tracking = {0,5},
-                zigzag = {2,4,8},
-                sine = {1,3,5,7,9},
-                spiral = {0,1,4,5,8,9},
-                radial = {2,3,6,7}
+                tracking = false,
+                zigzag = false,
+                sine = {0,3,4,7},
+                spiral = {0,1,6,7},
+                radial = {0,3,5,8},
+                spiral2 = {0,1,6,7}
             }
             boss.projectileBase = .5
-            boss.projectileModes = 10
+            boss.projectileModes = 9
             boss.spriteScale = 2
             boss.sprite = Animation.new(boss.images.deer, 70, 87, 1, 1)
         elseif boss.id == 4 then
@@ -101,7 +123,8 @@ function Boss(x, y, player, stage, images)
                 zigzag = {1,7},
                 sine = false,
                 spiral = {0,2,4,6},
-                radial = {1,3,5,7}
+                radial = {1,3,5,7},
+                spiral2 = false
             }
             boss.projectileBase = .5
             boss.projectileModes = 8
@@ -117,7 +140,8 @@ function Boss(x, y, player, stage, images)
                 zigzag = {1,7},
                 sine = false,
                 spiral = {0,2,4,6},
-                radial = {1,3,5,7}
+                radial = {1,3,5,7},
+                spiral2 = false
             }
             boss.projectileBase = .4
             boss.projectileModes = 7
@@ -169,12 +193,12 @@ function Boss(x, y, player, stage, images)
                 local dx = Player.x - boss.x
                 local dy = Player.y - boss.y
                 local angle = math.atan(dy / dx)
-                if dx < 0 then 
+                if dx < 0 then
                     angle = angle + math.pi
                 end
-                boss.angle = angle - math.rad(120) / 2
+                boss.angle = angle - math.rad(160) / 2
                 boss.projectileModifiers.Sine = true
-                boss.projectileCount = 6
+                boss.projectileCount = 9
                 for i = 0, boss.projectileCount - 1 do
                     boss.projectileIndex = i
                     projectiles.spawn(Boss)
@@ -190,7 +214,7 @@ function Boss(x, y, player, stage, images)
                 boss.projectileModifiers.Tracking = true
                 projectiles.spawn(Boss)
                 boss.projectileModifiers.Tracking = false
-                boss.timers.tracking = boss.projectileBase/2
+                boss.timers.tracking = boss.projectileBase
             end
         end
         if boss.modeAllowed(boss.projectiles.bomb, mode) then
@@ -198,7 +222,7 @@ function Boss(x, y, player, stage, images)
                 boss.projectileModifiers.Bomb = true
                 projectiles.spawn(Boss)
                 boss.projectileModifiers.Bomb = false
-                boss.timers.bomb = boss.projectileBase * 10
+                boss.timers.bomb = boss.projectileBase * 5
             end
         end
         if boss.modeAllowed(boss.projectiles.zigzag, mode) then
@@ -206,12 +230,12 @@ function Boss(x, y, player, stage, images)
                 local dx = Player.x - boss.x
                 local dy = Player.y - boss.y
                 local angle = math.atan(dy / dx)
-                if dx < 0 then 
+                if dx < 0 then
                     angle = angle + math.pi
                 end
-                boss.angle = angle - math.rad(80) / 2
+                boss.angle = angle - math.rad(120) / 2
                 boss.projectileModifiers.Zigzag = true
-                boss.projectileCount = 8
+                boss.projectileCount = 9
                 for i = 0, boss.projectileCount - 1 do
                     boss.projectileIndex = i
                     projectiles.spawn(Boss)
@@ -225,7 +249,7 @@ function Boss(x, y, player, stage, images)
         if boss.modeAllowed(boss.projectiles.radial, mode) then
             if boss.timers.radial <= 0 then
                 boss.projectileModifiers.Radial = true
-                boss.projectileCount = 36
+                boss.projectileCount = 24
                 for i = 0, boss.projectileCount - 1 do
                     boss.projectileIndex = i
                     projectiles.spawn(Boss)
@@ -234,6 +258,20 @@ function Boss(x, y, player, stage, images)
                 boss.projectileIndex = nil
                 boss.projectileCount = nil
                 boss.timers.radial = boss.projectileBase/3
+            end
+        end
+        if boss.modeAllowed(boss.projectiles.spiral2, mode) then
+            if boss.timers.spiral2 <= 0 then
+                boss.projectileModifiers.Spiral2 = true
+                boss.projectileCount = 24
+                for i = 0, boss.projectileCount - 1 do
+                    boss.projectileIndex = i
+                    projectiles.spawn(Boss)
+                end
+                boss.projectileModifiers.Spiral2 = false
+                boss.projectileIndex = nil
+                boss.projectileCount = nil
+                boss.timers.spiral2 = boss.projectileBase/8
             end
         end
     end

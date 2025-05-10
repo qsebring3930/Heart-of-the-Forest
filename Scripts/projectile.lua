@@ -4,7 +4,7 @@ local overlay = require "Scripts/overlay"
 local animation = require "Scripts/animation"
 
 function Projectile(images)
-    local projectiles = {} 
+    local projectiles = {}
     local sprites = images
     local Game = game()
     local Animation = animation()
@@ -30,15 +30,16 @@ function Projectile(images)
             split = owner.projectileModifiers.Split or nil,
             zigzag = owner.projectileModifiers.Zigzag or nil,
             radial = owner.projectileModifiers.Radial or nil,
+            spiral2 = owner.projectileModifiers.Spiral2 or nil,
             active = true,
             sprite = nil,
             spriteScale = 0
         }
         if p.spiral then
-            p.speed = 250
+            p.speed = 150
             p.color = Game.Color.Pink
             p.shade = Game.Color.Light
-            p.angularVelocity = .25
+            p.angularVelocity = .4
             if owner.projectileIndex and owner.projectileCount then
                 p.angle = (owner.projectileIndex / owner.projectileCount) * 2 * math.pi
             else
@@ -48,7 +49,7 @@ function Projectile(images)
             p.spriteScale = 1
         end
         if p.tracking and owner.target then
-            p.speed = 250
+            p.speed = 150
             p.color = Game.Color.Yellow
             p.shade = Game.Shade.Neon
             local dx = owner.target.x - owner.x
@@ -59,11 +60,11 @@ function Projectile(images)
             p.sprite = Animation.new(sprites.tracker, 37, 38, 1, 1)
             p.spriteScale = 1
         end
-        if p.sine then 
-            p.speed = 250
+        if p.sine then
+            p.speed = 135
             p.color = Game.Color.Orange
             p.shade = Game.Shade.Neon
-            local angle = owner.angle + (owner.projectileIndex / (owner.projectileCount - 1)) * math.rad(120)
+            local angle = owner.angle + (owner.projectileIndex / (owner.projectileCount - 1)) * math.rad(160)
             p.vx = math.cos(angle) * p.speed
             p.vy = math.sin(angle) * p.speed
             local perpX = -math.sin(angle)
@@ -79,7 +80,7 @@ function Projectile(images)
             p.shade = Game.Color.Dark
             p.radius = 15
             p.lifetime = 50
-            p.speed = 175
+            p.speed = 150
             p.targetX = owner.target.x
             p.targetY = owner.target.y
             local dx = owner.target.x - owner.x
@@ -91,19 +92,19 @@ function Projectile(images)
             p.spriteScale = 1
         end
         if p.zigzag then
-            p.speed = 250
-            local angle = owner.angle + (owner.projectileIndex / (owner.projectileCount - 1)) * math.rad(80)
+            p.speed = 110
+            local angle = owner.angle + (owner.projectileIndex / (owner.projectileCount - 1)) * math.rad(120)
             p.vx = math.cos(angle) * p.speed
             p.vy = math.sin(angle) * p.speed
             p.color = Game.Color.Blue
             p.shade = Game.Shade.Light
             p.zigzagDir = -1
-            p.zigzagTimer = 5
+            p.zigzagTimer = 10
             p.sprite = Animation.new(sprites.bolt, 43, 45, 1, 1)
             p.spriteScale = 1
         end
         if p.radial then
-            p.speed = 250
+            p.speed = 135
             p.color = Game.Color.Red
             p.shade = Game.Color.Light
             if owner.projectileIndex and owner.projectileCount then
@@ -113,6 +114,19 @@ function Projectile(images)
             end
             p.sprite = Animation.new(sprites.ball, 40, 41, 1, 1)
             p.spriteScale = 1
+        end
+        if p.spiral2 then
+            p.speed = 150
+            p.color = Game.Color.Pink
+            p.shade = Game.Color.Light
+            p.angularVelocity = .4
+            if owner.projectileIndex and owner.projectileCount then
+                p.angle = (owner.projectileIndex / owner.projectileCount) * 2 * math.pi
+            else
+                p.angle = love.timer.getTime() * 4 * math.pi  -- fallback
+            end
+            p.sprite = Animation.new(sprites.fire, 47, 59, 1, 1)
+            p.spriteScale = .5
         end
         if owner == Player then
             p.speed = 600
@@ -189,6 +203,12 @@ function Projectile(images)
                     local dy = math.sin(p.angle) * (p.speed or 0) * dt
                     p.x = p.x + dx
                     p.y = p.y + dy
+                elseif p.spiral2 then
+                    p.angle = p.angle - (p.angularVelocity or 0) * dt
+                    local dx = math.cos(p.angle) * (p.speed or 0) * dt
+                    local dy = math.sin(p.angle) * (p.speed or 0) * dt
+                    p.x = p.x + dx
+                    p.y = p.y + dy
                 else
                     p.x = p.x + p.vx * dt
                     p.y = p.y + p.vy * dt
@@ -198,9 +218,9 @@ function Projectile(images)
                 local isBossProjectile = (p.owner == Boss) or (p.split)
                 local hitBoss = p.owner == Player and CheckCollision(p, Boss)
                 local hitPlayer = isBossProjectile and CheckCollision(p, Player)
-        
+
                 local outOfBounds = p.y < -10 or p.y > Window.height + 10 or p.x < -10 or p.x > Window.width + 10
-        
+
                 if hitBoss or hitPlayer or outOfBounds then
                     if hitBoss then
                         print("Boss was hit!")
@@ -212,7 +232,7 @@ function Projectile(images)
                         end
                         table.remove(Projectiles.list, i)
                     elseif hitPlayer then
-                        Player.hit()
+                        --Player.hit()
                         table.remove(Projectiles.list, i)
                         if overlay.intensity >= 2 then
                             GameState.staged = false
@@ -220,7 +240,7 @@ function Projectile(images)
                             overlay.set(0)
                         end
                     else
-                        table.remove(Projectiles.list, i)   
+                        table.remove(Projectiles.list, i)
                     end
                 end
             end
