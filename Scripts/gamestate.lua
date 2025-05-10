@@ -5,7 +5,7 @@ local overlay = require "Scripts/overlay"
 
 function GameState()
     local Game = game()
-    local Width, Height = love.graphics.getDimensions()
+    local Width, Height = 0,0
     local gamestate = {
         menu = true,
         staged = false,
@@ -21,11 +21,20 @@ function GameState()
             gamestate.menu = false
             gamestate.staged = true
             gamestate.stagenum = 1
+            gamestate.win = false
+            backgroundMusic.menu:pause()
+            backgroundMusic.game:setLooping(true)
+            backgroundMusic.game:setVolume(0.5)
+            backgroundMusic.game:play()
             InitStage()
         elseif gamestate.staged then
             if gamestate.stagenum < 5 then
                 gamestate.stagenum = gamestate.stagenum + 1
                 overlay.transition()
+                gamestate.win = false
+                backgroundMusic.game:setLooping(true)
+                backgroundMusic.game:setVolume(0.5)
+                backgroundMusic.game:play()
             else
                 gamestate.staged = false
                 gamestate.gameover = true
@@ -33,6 +42,9 @@ function GameState()
             end
         end
         --IMPLEMENT ME
+    end
+    function gamestate.update(dt)
+        Width, Height = love.graphics.getDimensions()
     end
     function gamestate.quit()
         if love.window.getFullscreen() then
@@ -42,10 +54,11 @@ function GameState()
         love.event.quit()
     end
     function gamestate.draw()
+        local font = love.graphics.getFont()
         if gamestate.paused then
             Game.Color.Set(Game.Color.Red, Game.Shade.Neon)
             love.graphics.circle("fill", 10, 10, 10)
-            love.graphics.print("PAUSED", 475, 300, 0, 5, 5)
+            love.graphics.print("PAUSED", Width/2 - font:getWidth("PAUSED")/2, Height/2 - font:getHeight()/2, 0)
             Game.Color.Clear()
         else
             if gamestate.menu then
@@ -57,8 +70,9 @@ function GameState()
                 gamestate.buttons.credits = button()
                 gamestate.buttons.quit = button()
                 --love.event.quit()
-                gamestate.buttons.play.draw(575, 300, 150, 75, Game.Orientation.Center, Game.Color.Blue, "Play", GameState.transition, 2)
-                gamestate.buttons.quit.draw(575, 400, 150, 75, Game.Orientation.Center, Game.Color.Blue, "Quit", GameState.quit, 2)
+                local w, h = love.graphics.getDimensions()
+                gamestate.buttons.play.draw(Width/2, 300, 150, 75, Game.Orientation.Center, Game.Color.Blue, "Play", GameState.transition, .5)
+                gamestate.buttons.quit.draw(Width/2, 400, 150, 75, Game.Orientation.Center, Game.Color.Blue, "Quit", GameState.quit, .5)
                 --gamestate.buttons.play.draw(Height/2, Width/2, 100, 30, Game.Orientation.Center, Game.Color.Blue, "Play", GameState.transition)
                 --gamestate.buttons.play.draw(Height/2, Width/2, 100, 30, Game.Orientation.Center, Game.Color.Blue, "Play", GameState.transition)
             elseif gamestate.staged then
@@ -70,12 +84,12 @@ function GameState()
                 if not gamestate.win then
                     Game.Color.Set(Game.Color.Yellow, Game.Shade.Neon)
                     love.graphics.circle("fill", 10, 10, 10)
-                    love.graphics.print("GAME OVER", 475, 300, 0, 5, 5)
+                    love.graphics.print("GAME OVER", 475, 300, 0)
                     Game.Color.Clear()
                 else
                     Game.Color.Set(Game.Color.White, Game.Shade.Neon)
                     love.graphics.circle("fill", 10, 10, 10)
-                    love.graphics.print("YOU WIN!", 475, 300, 0, 5, 5)
+                    love.graphics.print("YOU WIN!", 475, 300, 0)
                     Game.Color.Clear()
                 end
             end

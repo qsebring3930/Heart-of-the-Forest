@@ -11,10 +11,15 @@ local overlay = require "Scripts/overlay"
 
 
 function love.load()
-    backgroundMusic = love.audio.newSource("Assets/Sounds/Menu.wav", "stream")
-    backgroundMusic:setLooping(true)
-    backgroundMusic:setVolume(0.5)  -- optional volume control
-    backgroundMusic:play()
+    backgroundMusic = {
+        menu = love.audio.newSource("Assets/Sounds/Funnie.mp3", "stream"),
+        game = love.audio.newSource("Assets/Sounds/Bipolar hands demo.mp3", "stream"),
+    }
+    gameFont = love.graphics.newFont("Assets/Fonts/DungeonFont.ttf", 72)
+    love.graphics.setFont(gameFont)
+    backgroundMusic.menu:setLooping(true)
+    backgroundMusic.menu:setVolume(0.5)  -- optional volume control
+    backgroundMusic.menu:play()
     Game = game()
     GameState = gamestate()
     love.graphics.setBackgroundColor(0.36, 0, .64, 0)
@@ -26,6 +31,7 @@ function love.load()
 end
 
 function love.update(dt)
+    GameState.update()
     if GameState.staged and not GameState.paused and not GameState.gameover then
         overlay.update(dt)
         GetKeys(dt)
@@ -55,7 +61,8 @@ function love.draw()
     end
 
     love.graphics.setCanvas()
-
+    love.graphics.clear()
+    love.graphics.origin()
     -- draw pixelated canvas
     overlay.draw(GameCanvas)
 end

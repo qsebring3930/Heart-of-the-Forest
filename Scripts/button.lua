@@ -14,24 +14,31 @@ function Button()
         func = nil,
     }
     function button.draw(x, y, width, height, orientation, color, text, onclick, scale)
-        button.x = x 
-        button.y = y
+        button.x = x - width/2
+        button.y = y - height/2
         button.width = width
         button.height = height
         button.func = onclick
+
+        scale = scale or 1
+
+        local font = love.graphics.getFont()
+        local textWidth = font:getWidth(text) * scale
+        local textHeight = font:getHeight() * scale
+
         if orientation == Game.Orientation.Center then
-            button.textX = button.x + width/2
-            button.textY = button.y + height/2
+            button.textX = button.x + (width - textWidth) / 2
+            button.textY = button.y + (height - textHeight) / 2
         end
+
         Game.Color.Set(color)
         love.graphics.rectangle("fill", button.x, button.y, width, height)
         Game.Color.Clear()
 
         Game.Color.Set(Game.Color.Black)
-        local scale = scale
-        love.graphics.print(text, button.textX - (string.len(text) * 3 * scale), button.textY - (8 * scale), 0, scale)
+        love.graphics.print(text, button.textX, button.textY, 0, scale, scale)
         Game.Color.Clear()
-    end
+    end 
     function button.checkClick(mx, my) 
         if mx >= button.x and mx <= button.x + button.width and 
             my >= button.y and my <= button.y + button.height and

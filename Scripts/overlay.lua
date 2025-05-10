@@ -111,7 +111,7 @@ function overlay.increment()
             table.insert(keys, shader)
         end
         local chosen = keys[math.random(#keys)]
-        overlay.activeStack[chosen] = overlay.activeStack[chosen] + .1
+        overlay.activeStack[chosen] = overlay.activeStack[chosen] + 0.1
     end
 end
 
@@ -158,7 +158,7 @@ function overlay.draw(canvas)
         end
         love.graphics.draw(input, 0, 0)
     else
-        if overlay.cur ~= 3 then
+        if overlay.cur ~= 3 and overlay.intensity > 0 then
             local shader = overlay.shaders[overlay.cur]
             love.graphics.setShader(shader)
             shader:send("intensity", overlay.intensity)
