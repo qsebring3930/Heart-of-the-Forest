@@ -2,7 +2,7 @@ local game = require "Scripts/game"
 local overlay = require "Scripts/overlay"
 local animation = require "Scripts/animation"
 
-function Player(x, y, image)
+function Player(x, y)
     local Game = game()
     local Animation = animation()
     local player = {
@@ -17,7 +17,7 @@ function Player(x, y, image)
         projectileModifiers = {
             isPlayer = true,
         },
-        anim = Animation.new(image, 162, 79, 4, 0.1)
+        anim = Animation.new(PlayerImage, 162, 79, 4, 0.1)
     }
     function player.move(direction, dt)
         local dx, dy = 0, 0

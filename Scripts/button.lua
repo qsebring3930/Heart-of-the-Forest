@@ -1,6 +1,6 @@
 local game = require "Scripts/game"
 
-function Button()
+function Button(images)
     local Game = game()
     local button = {
         text = "text",
@@ -11,6 +11,7 @@ function Button()
         width = 0,
         height = 0,
         func = nil,
+        images = images
     }
     function button.draw(x, y, width, height, orientation, color, text, onclick, scale)
         button.x = x - width/2
@@ -31,7 +32,8 @@ function Button()
         end
 
         Game.Color.Set(color)
-        love.graphics.rectangle("fill", button.x, button.y, width, height)
+        local imgWidth, imgHeight = ButtonImages.generic:getDimensions()
+        love.graphics.draw(ButtonImages.generic, button.x, button.y, 0, width / imgWidth, height / imgHeight)
         Game.Color.Clear()
 
         Game.Color.Set(Game.Color.Black)
@@ -43,6 +45,7 @@ function Button()
             my >= button.y and my <= button.y + button.height and
             button.func then
                 button.func()
+                print("button clicked!")
         end
     end
     return button

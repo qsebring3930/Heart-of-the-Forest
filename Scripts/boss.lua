@@ -1,6 +1,6 @@
 local animation = require "Scripts/animation"
 
-function Boss(x, y, player, stage, images)
+function Boss(x, y, player, stage)
     local Animation = animation()
     local boss = {
         id = stage, --
@@ -39,7 +39,6 @@ function Boss(x, y, player, stage, images)
             radial = false,
             spiral2 = false
         },
-        images = images,
         sprite = nil,
         spriteScale = 0
     }
@@ -60,7 +59,7 @@ function Boss(x, y, player, stage, images)
             }
             boss.projectileModes = 2
             boss.spriteScale = 2
-            boss.sprite = Animation.new(boss.images.zapper, 70, 70, 1, 1)--]]
+            boss.sprite = Animation.new(BossImages.zapper, 70, 70, 1, 1)--]]
         if boss.id == 1 then
             boss.speed = 200
             boss.size = 75
@@ -76,11 +75,11 @@ function Boss(x, y, player, stage, images)
                 spiral2 = false
             }
             boss.projectileModes = 6
-            boss.spriteScale = 2
-            boss.sprite = Animation.new(boss.images.zapper, 70, 70, 1, 1)
+            boss.spriteScale = 3
+            boss.sprite = Animation.new(BossImages.zapper, 70, 70, 1, 1)
         elseif boss.id == 2 then
             boss.speed =  200
-            boss.size = 50
+            boss.size = 75
             boss.health = 20 --225 --350
             boss.projectiles = {
                 bomb = {1,3,5,7},
@@ -93,11 +92,11 @@ function Boss(x, y, player, stage, images)
             }
             boss.projectileBase = .6
             boss.projectileModes = 8
-            boss.spriteScale = 1
-            boss.sprite = Animation.new(boss.images.cat, 200, 200, 1, 1)
+            boss.spriteScale = 2
+            boss.sprite = Animation.new(BossImages.cat, 200, 200, 1, 1)
         elseif boss.id == 3 then
             boss.speed = 200
-            boss.size = 50
+            boss.size = 75
             boss.health = 20 --250 --450
             boss.projectiles = {
                 bomb = false,
@@ -110,11 +109,11 @@ function Boss(x, y, player, stage, images)
             }
             boss.projectileBase = .5
             boss.projectileModes = 9
-            boss.spriteScale = 2
-            boss.sprite = Animation.new(boss.images.deer, 70, 87, 1, 1)
+            boss.spriteScale = 3
+            boss.sprite = Animation.new(BossImages.deer, 70, 87, 1, 1)
         elseif boss.id == 4 then
             boss.speed = 200
-            boss.size = 50
+            boss.size = 75
             boss.health = 20 --275 --550
             boss.projectiles = {
                 bomb = {3, 7},
@@ -128,10 +127,10 @@ function Boss(x, y, player, stage, images)
             boss.projectileBase = .45
             boss.projectileModes = 8
             boss.spriteScale = 1
-            boss.sprite = Animation.new(boss.images.mushroom, 200, 200, 1, 1)
+            boss.sprite = Animation.new(BossImages.mushroom, 200, 200, 1, 1)
         elseif boss.id == 5 then
             boss.speed = 200
-            boss.size = 50
+            boss.size = 75
             boss.health = 20 --300 --650
             boss.projectiles = {
                 bomb = {6},
@@ -145,7 +144,7 @@ function Boss(x, y, player, stage, images)
             boss.projectileBase = .4
             boss.projectileModes = 14
             boss.spriteScale = 1
-            boss.sprite = Animation.new(boss.images.flower, 200, 200, 1, 1)
+            boss.sprite = Animation.new(BossImages.flower, 200, 200, 1, 1)
         end
     end
     function boss.update(dt)
@@ -275,7 +274,11 @@ function Boss(x, y, player, stage, images)
         end
     end
     function boss.draw()
-        boss.sprite.draw(boss.x, boss.y, boss.spriteScale)
+        if boss.id ~= 3 then
+            boss.sprite.draw(boss.x, boss.y, boss.spriteScale)
+        else
+            boss.sprite.draw(boss.x + 10, boss.y - 40, boss.spriteScale)
+        end
     end
     function boss.modeAllowed(list, mode)
         if list == false then return false end

@@ -2,9 +2,8 @@ local game = require "Scripts/game"
 local overlay = require "Scripts/overlay"
 local animation = require "Scripts/animation"
 
-function Projectile(images)
+function Projectile()
     local projectiles = {}
-    local sprites = images
     local Game = game()
     local Animation = animation()
     function Spawn(owner)
@@ -44,7 +43,7 @@ function Projectile(images)
             else
                 p.angle = love.timer.getTime() * 4 * math.pi  -- fallback
             end
-            p.sprite = Animation.new(sprites.point, 29, 30, 1, 1)
+            p.sprite = Animation.new(ProjectileImages.point, 29, 30, 1, 1)
             p.spriteScale = 1
         end
         if p.tracking and owner.target then
@@ -56,7 +55,7 @@ function Projectile(images)
             local len = math.sqrt(dx * dx + dy * dy)
             p.vx = (dx / len) * p.speed
             p.vy = (dy / len) * p.speed
-            p.sprite = Animation.new(sprites.tracker, 37, 38, 1, 1)
+            p.sprite = Animation.new(ProjectileImages.tracker, 37, 38, 1, 1)
             p.spriteScale = 1
         end
         if p.sine then
@@ -71,7 +70,7 @@ function Projectile(images)
             p.wiggleTime = 0
             p.wiggleDirX = perpX
             p.wiggleDirY = perpY
-            p.sprite = Animation.new(sprites.drop, 45, 57, 1, 1)
+            p.sprite = Animation.new(ProjectileImages.drop, 45, 57, 1, 1)
             p.spriteScale = 1
         end
         if p.bomb and owner.target then
@@ -87,7 +86,7 @@ function Projectile(images)
             local len = math.sqrt(dx * dx + dy * dy)
             p.vx = (dx / len) * p.speed
             p.vy = (dy / len) * p.speed
-            p.sprite = Animation.new(sprites.bomb, 26, 28, 1, 1)
+            p.sprite = Animation.new(ProjectileImages.bomb, 26, 28, 1, 1)
             p.spriteScale = 1
         end
         if p.zigzag then
@@ -99,7 +98,7 @@ function Projectile(images)
             p.shade = Game.Shade.Light
             p.zigzagDir = -1
             p.zigzagTimer = 10
-            p.sprite = Animation.new(sprites.bolt, 43, 45, 1, 1)
+            p.sprite = Animation.new(ProjectileImages.bolt, 43, 45, 1, 1)
             p.spriteScale = 1
         end
         if p.radial then
@@ -111,7 +110,7 @@ function Projectile(images)
             else
                 p.angle = love.timer.getTime() * 4 * math.pi  -- fallback
             end
-            p.sprite = Animation.new(sprites.ball, 40, 41, 1, 1)
+            p.sprite = Animation.new(ProjectileImages.ball, 40, 41, 1, 1)
             p.spriteScale = 1
         end
         if p.spiral2 then
@@ -124,7 +123,7 @@ function Projectile(images)
             else
                 p.angle = love.timer.getTime() * 4 * math.pi  -- fallback
             end
-            p.sprite = Animation.new(sprites.fire, 47, 59, 1, 1)
+            p.sprite = Animation.new(ProjectileImages.fire, 47, 59, 1, 1)
             p.spriteScale = .5
         end
         if p.isplayer then
@@ -132,7 +131,7 @@ function Projectile(images)
             p.radius = 3
             p.vx = owner.vx * .5
             p.vy = -900 + owner.vy * 0.3
-            p.sprite = Animation.new(sprites.spit, 45, 35, 1, 1)
+            p.sprite = Animation.new(ProjectileImages.spit, 45, 35, 1, 1)
             p.spriteScale = .5
         end
         table.insert(projectiles, p)
@@ -226,10 +225,9 @@ function Projectile(images)
                     if hitBoss then
                         print("Boss was hit!")
                         Boss.health = Boss.health - 1
-                        if Boss.health <= 0 then
+                        if Boss.health <= 0 and not GameState.fading then
                             GameState.transition()
                             overlay.set(0)
-                            InitStage()
                         end
                         table.remove(Projectiles.list, i)
                     elseif hitPlayer then

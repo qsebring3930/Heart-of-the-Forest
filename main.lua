@@ -36,13 +36,18 @@ function love.load()
         stage4 = love.graphics.newImage("Assets/Backgrounds/Preview 1.png"),
         stage5 = love.graphics.newImage("Assets/Backgrounds/2304x1296 (1).png")
     }
+    ButtonImages = {
+        header = love.graphics.newImage("Assets/Buttons/UI_Flat_Banner01a.png"),
+        generic = love.graphics.newImage("Assets/Buttons/UI_Flat_Bar07a.png")
+    }
+    PlayerImage = love.graphics.newImage("Assets/Sprites/moth-ss.png")
     GameFont = love.graphics.newFont("Assets/Fonts/DungeonFont.ttf", 72)
     love.graphics.setFont(GameFont)
     BackgroundMusic.menu:setLooping(true)
     BackgroundMusic.menu:setVolume(0.5)  -- optional volume control
     BackgroundMusic.menu:play()
     GameObject = game()
-    GameState = gamestate(BackgroundImages)
+    GameState = gamestate()
     InitWindow()
     InitStage()
     GameCanvas = love.graphics.newCanvas(Window.width, Window.height)
@@ -51,8 +56,8 @@ function love.load()
 end
 
 function love.update(dt)
-    if GameState.staged and not GameState.paused and not GameState.gameover then
-        overlay.update(dt)
+    overlay.update(dt)
+    if GameState.staged and not GameState.paused and not GameState.gameover and not GameState.fading then
         GetKeys(dt)
         Projectiles.update(dt, PlayerObject, BossObject)
         BossObject.update(dt)
@@ -94,10 +99,8 @@ function InitWindow()
 end
 
 function InitStage()
-
-
-    PlayerObject = player(Width / 2, Height * 3 / 4, love.graphics.newImage("Assets/Sprites/moth-ss.png"))
-    BossObject = boss(Width / 2, Height * 1 / 4, PlayerObject, GameState.stagenum, BossImages)
+    PlayerObject = player(Window.width / 2, Window.height * 3 / 4)
+    BossObject = boss(Window.width / 2, Window.height * 1 / 4, PlayerObject, GameState.stagenum)
     BossObject.stage()
     Projectiles = projectile(ProjectileImages)
 end
@@ -135,7 +138,9 @@ function GetKeys(dt)
         PlayerObject.move(GameObject.Direction.None, dt)
     end
     if love.keyboard.isDown("space") and PlayerObject.fireTimer <= 0 then
-        PlayerObject.shoot(Projectiles)
+        if not GameState.transitioning then
+            PlayerObject.shoot(Projectiles)
+        end
     end
 end
 
@@ -143,10 +148,8 @@ function love.keypressed(key)
     if key == "f" then
         if love.window.getFullscreen() then
             love.window.setFullscreen(false)
-            Window.scale = 1
         else
             love.window.setFullscreen(true)
-            Window.scale = 4
         end
         Width, Height = love.graphics.getDimensions()
         Resize(Width, Height)
@@ -160,9 +163,14 @@ function love.keypressed(key)
         GameState.staged = true
         GameState.stagenum = 1
         GameState.gameover = false
+        GameState.win = false
         overlay.set(0)
         overlay.cur = 1
         InitStage()
+    elseif key == "space" then
+        if GameState.transitioning then
+            GameState.transition()
+        end
     end
 end
 
@@ -183,6 +191,7 @@ function Resize(w, h)
     Window.translateX = (w - w1 * scale) / 2
     Window.translateY = (h - h1 * scale) / 2
     Window.scale = scale
+    love.graphics.origin()
     GameCanvas = love.graphics.newCanvas(w, h)  -- recreate canvas
 end
 

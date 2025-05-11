@@ -64,6 +64,7 @@ local shaderHueWavy = love.graphics.newShader[[
 
 local randomShader = true
 
+
 local overlay = {
     cur = 1,
     shaders = {shaderPixelate, shaderRedshift, "controlsBackwards", shaderHueWavy, randomShader},
@@ -74,8 +75,25 @@ local overlay = {
         [shaderHueWavy] = 0.0
     },
     time = 0,
-    controlsBackwards = 0.0
+    controlsBackwards = 0.0,
+    fade = {
+        alpha = 0,
+        duration = 1,
+        timer = 0,
+        active = false,
+        dir = 1, -- 1 = fade out, -1 = fade in
+        callback = nil
+    }
 }
+
+function overlay.fadeTo(duration, callback)
+    overlay.fade.alpha = 0
+    overlay.fade.duration = duration or 1
+    overlay.fade.timer = 0
+    overlay.fade.active = true
+    overlay.fade.dir = 1
+    overlay.fade.callback = callback
+end
 
 function overlay.set(val)
     overlay.intensity = val
@@ -97,6 +115,22 @@ function overlay.update(dt)
     end
     if overlay.cur == 3 then
         overlay.controlsBackwards = math.max(0, overlay.controlsBackwards - dt)
+    end
+    if overlay.fade.active then
+        overlay.fade.timer = overlay.fade.timer + dt * overlay.fade.dir
+        local t = overlay.fade.timer / overlay.fade.duration
+        overlay.fade.alpha = math.max(0, math.min(1, t))
+
+        if overlay.fade.dir == 1 and overlay.fade.alpha >= 1 then
+            print("Fade reached full alpha, calling callback!")
+            if overlay.fade.callback then
+                overlay.fade.callback()
+                overlay.fade.callback = nil
+            end
+            overlay.fade.dir = -1
+        elseif overlay.fade.dir == -1 and overlay.fade.alpha <= 0 then
+            overlay.fade.active = false
+        end
     end
 end
 
@@ -168,6 +202,11 @@ function overlay.draw(canvas)
         end
         love.graphics.draw(canvas, 0, 0)
         love.graphics.setShader()
+    end
+    if overlay.fade.alpha > 0 then
+        love.graphics.setColor(0, 0, 0, overlay.fade.alpha)
+        love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+        love.graphics.setColor(1, 1, 1, 1)
     end
 end
 

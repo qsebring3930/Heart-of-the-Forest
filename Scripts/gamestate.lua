@@ -2,45 +2,63 @@ local game = require "Scripts/game"
 local button = require "Scripts/button"
 local overlay = require "Scripts/overlay"
 
-function Gamestate(images)
+function Gamestate()
     local Game = game()
     local gamestate = {
         menu = true,
         staged = false,
+        transitioning = false,
         gameover = false,
         win = false,
         paused = false,
         running = true,
         stagenum = 0,
+        transnum = 0,
         buttons = {},
-        images = images
+        fading = false
     }
     function gamestate.transition()
+        if gamestate.fading then return end
+        print("we fading out")
+        gamestate.fading = true
+        overlay.fadeTo(1, gamestate.completeTransition)
+    end
+
+    function gamestate.completeTransition()
+        gamestate.fading = false
+
         if gamestate.menu then
+            print("we going to the transition")
             gamestate.menu = false
-            gamestate.staged = true
+            gamestate.transitioning = true
             gamestate.stagenum = 1
-            gamestate.win = false
             BackgroundMusic.menu:pause()
-            BackgroundMusic.game:setLooping(true)
-            BackgroundMusic.game:setVolume(0.5)
-            BackgroundMusic.game:play()
-            InitStage()
-        elseif gamestate.staged then
-            if gamestate.stagenum < 5 then
-                gamestate.stagenum = gamestate.stagenum + 1
-                overlay.transition()
-                gamestate.win = false
+
+        elseif gamestate.transitioning then
+            if gamestate.stagenum <= 5 then
+                gamestate.transitioning = false
+                gamestate.staged = true
                 BackgroundMusic.game:setLooping(true)
                 BackgroundMusic.game:setVolume(0.5)
                 BackgroundMusic.game:play()
+                InitStage()
+            end
+
+        elseif gamestate.staged then
+            if gamestate.stagenum < 5 then
+                gamestate.win = false
+                gamestate.stagenum = gamestate.stagenum + 1
+                gamestate.staged = false
+                gamestate.transitioning = true
+                overlay.transition()
+                BackgroundMusic.game:pause()
             else
                 gamestate.staged = false
                 gamestate.gameover = true
                 gamestate.win = true
             end
+
         end
-        --IMPLEMENT ME
     end
     function gamestate.quit()
         if love.window.getFullscreen() then
@@ -62,8 +80,8 @@ function Gamestate(images)
             gamestate.buttons.quit = button()
             --love.event.quit()
             local w, h = love.graphics.getDimensions()
-            gamestate.buttons.play.draw(Window.width/2, Window.height/2 - 50, 150, 75, Game.Orientation.Center, Game.Color.Blue, "Play", GameState.transition, .5)
-            gamestate.buttons.quit.draw(Window.width/2, Window.height/2 + 50, 150, 75, Game.Orientation.Center, Game.Color.Blue, "Quit", GameState.quit, .5)
+            gamestate.buttons.play.draw(Window.width/2, Window.height/2 - 50, 150, 75, Game.Orientation.Center, Game.Color.Blue, "Play", gamestate.transition, .5)
+            gamestate.buttons.quit.draw(Window.width/2, Window.height/2 + 50, 150, 75, Game.Orientation.Center, Game.Color.Blue, "Quit", gamestate.quit, .5)
         elseif gamestate.staged then
             local bg = BackgroundImages["stage" .. gamestate.stagenum]
             if bg then
@@ -73,6 +91,33 @@ function Gamestate(images)
             love.graphics.circle("fill", 10, 10, 10)
             love.graphics.print("STAGED", 50, 50)
             Game.Color.Clear()
+        elseif gamestate.transitioning then
+            if gamestate.stagenum == 1 then
+                Game.Color.Set(Game.Color.Pink, Game.Shade.Neon)
+                love.graphics.circle("fill", 10, 10, 10)
+                love.graphics.print("blah blah you are a moth\n trying to return to the forest", 50, 50)
+                Game.Color.Clear()
+            elseif gamestate.stagenum == 2 then
+                Game.Color.Set(Game.Color.Pink, Game.Shade.Neon)
+                love.graphics.circle("fill", 10, 10, 10)
+                love.graphics.print("blah blah you must cross the\n field to the forests edge", 50, 50)
+                Game.Color.Clear()
+            elseif gamestate.stagenum == 3 then
+                Game.Color.Set(Game.Color.Pink, Game.Shade.Neon)
+                love.graphics.circle("fill", 10, 10, 10)
+                love.graphics.print("blah blah you must defeat the\n guardian of the forests edge", 50, 50)
+                Game.Color.Clear()
+            elseif gamestate.stagenum == 4 then
+                Game.Color.Set(Game.Color.Pink, Game.Shade.Neon)
+                love.graphics.circle("fill", 10, 10, 10)
+                love.graphics.print("blah blah you're nearing the\n heart of the forest", 50, 50)
+                Game.Color.Clear()
+            elseif gamestate.stagenum == 5 then
+                Game.Color.Set(Game.Color.Pink, Game.Shade.Neon)
+                love.graphics.circle("fill", 10, 10, 10)
+                love.graphics.print("blah blah you must defeat the\n heart of the forest", 50, 50)
+                Game.Color.Clear()
+            end
         elseif gamestate.gameover then
             if not gamestate.win then
                 Game.Color.Set(Game.Color.Red, Game.Shade.Neon)
