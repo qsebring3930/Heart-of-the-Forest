@@ -13,7 +13,7 @@ function Button(images)
         func = nil,
         images = images
     }
-    function button.draw(x, y, width, height, orientation, color, text, onclick, scale)
+    function button.draw(x, y, width, height, orientation, color, text, onclick, scale, generic)
         button.x = x - width/2
         button.y = y - height/2
         button.width = width
@@ -28,12 +28,22 @@ function Button(images)
 
         if orientation == Game.Orientation.Center then
             button.textX = button.x + (width - textWidth) / 2
-            button.textY = button.y + (height - textHeight) / 2
+            if generic then
+                button.textY = button.y + (height - textHeight) / 2
+            else 
+                button.textY = button.y + 3*(height - textHeight) / 4
+            end
         end
 
         Game.Color.Set(color)
-        local imgWidth, imgHeight = ButtonImages.generic:getDimensions()
-        love.graphics.draw(ButtonImages.generic, button.x, button.y, 0, width / imgWidth, height / imgHeight)
+        local imgWidth, imgHeight
+        if generic then
+            imgWidth, imgHeight = ButtonImages.generic:getDimensions()
+            love.graphics.draw(ButtonImages.generic, button.x, button.y, 0, width / imgWidth, height / imgHeight)
+        else
+            imgWidth, imgHeight = ButtonImages.header:getDimensions()
+            love.graphics.draw(ButtonImages.header, button.x, button.y, 0, width / imgWidth, height / imgHeight)
+        end
         Game.Color.Clear()
 
         Game.Color.Set(Game.Color.Black)

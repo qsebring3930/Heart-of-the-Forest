@@ -159,50 +159,52 @@ function overlay.transition()
 end
 
 function overlay.draw(canvas)
-    if overlay.cur == 5 then
-        local input = canvas
-        local intermediate = love.graphics.newCanvas(canvas:getWidth(), canvas:getHeight())
+    if GameState.staged then
+        if overlay.cur == 5 then
+            local input = canvas
+            local intermediate = love.graphics.newCanvas(canvas:getWidth(), canvas:getHeight())
 
-        for shader, count in pairs(overlay.activeStack) do
-            if count > 0 then
-                local intensity
-                if overlay.intensity > 0 then
-                    intensity = count
-                else
-                    intensity = 0
+            for shader, count in pairs(overlay.activeStack) do
+                if count > 0 then
+                    local intensity
+                    if overlay.intensity > 0 then
+                        intensity = count
+                    else
+                        intensity = 0
+                    end
+                    love.graphics.setCanvas(intermediate)
+                    love.graphics.clear()
+                    love.graphics.setShader(shader)
+
+                    if shader:hasUniform("intensity") then
+                        shader:send("intensity", intensity)
+                    end
+                    if shader:hasUniform("time") then
+                        shader:send("time", overlay.time)
+                    end
+
+                    love.graphics.draw(input, 0, 0)
+                    love.graphics.setShader()
+                    love.graphics.setCanvas()
+
+                    -- Swap input/output for next pass
+                    input, intermediate = intermediate, input
                 end
-                love.graphics.setCanvas(intermediate)
-                love.graphics.clear()
+            end
+            love.graphics.draw(input, 0, 0)
+        else
+            if overlay.cur ~= 3 and overlay.intensity > 0 then
+                local shader = overlay.shaders[overlay.cur]
                 love.graphics.setShader(shader)
-
-                if shader:hasUniform("intensity") then
-                    shader:send("intensity", intensity)
-                end
+                shader:send("intensity", overlay.intensity)
                 if shader:hasUniform("time") then
                     shader:send("time", overlay.time)
                 end
-
-                love.graphics.draw(input, 0, 0)
-                love.graphics.setShader()
-                love.graphics.setCanvas()
-
-                -- Swap input/output for next pass
-                input, intermediate = intermediate, input
             end
         end
-        love.graphics.draw(input, 0, 0)
-    else
-        if overlay.cur ~= 3 and overlay.intensity > 0 then
-            local shader = overlay.shaders[overlay.cur]
-            love.graphics.setShader(shader)
-            shader:send("intensity", overlay.intensity)
-            if shader:hasUniform("time") then
-                shader:send("time", overlay.time)
-            end
-        end
-        love.graphics.draw(canvas, 0, 0)
-        love.graphics.setShader()
     end
+    love.graphics.draw(canvas, 0, 0)
+    love.graphics.setShader()
     if overlay.fade.alpha > 0 then
         love.graphics.setColor(0, 0, 0, overlay.fade.alpha)
         love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())

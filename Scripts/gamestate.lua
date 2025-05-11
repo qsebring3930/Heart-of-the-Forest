@@ -71,69 +71,54 @@ function Gamestate()
         local font = love.graphics.getFont()
         if gamestate.menu then
             love.graphics.draw(BackgroundImages.menu, 0, 0, 0, Window.width / BackgroundImages.menu:getWidth(), Window.height / BackgroundImages.menu:getHeight())
-            Game.Color.Set(Game.Color.Blue, Game.Shade.Neon)
-            love.graphics.circle("fill", 10, 10, 10)
-            love.graphics.print("MENU", 50, 50)
+            gamestate.buttons.title = button()
             gamestate.buttons.play = button()
-            gamestate.buttons.settings = button()
-            gamestate.buttons.credits = button()
             gamestate.buttons.quit = button()
             --love.event.quit()
             local w, h = love.graphics.getDimensions()
-            gamestate.buttons.play.draw(Window.width/2, Window.height/2 - 50, 150, 75, Game.Orientation.Center, Game.Color.Blue, "Play", gamestate.transition, .5)
-            gamestate.buttons.quit.draw(Window.width/2, Window.height/2 + 50, 150, 75, Game.Orientation.Center, Game.Color.Blue, "Quit", gamestate.quit, .5)
+            gamestate.buttons.title.draw(Window.width/2, Window.height/2 - 200, 600, 150, Game.Orientation.Center, Game.Color.White, "Heart of the Forest", nil, .75, false)
+            gamestate.buttons.play.draw(Window.width/2, Window.height/2 + 50, 150, 75, Game.Orientation.Center, Game.Color.Blue, "Play", gamestate.transition, .5, true)
+            gamestate.buttons.quit.draw(Window.width/2, Window.height/2 + 150, 150, 75, Game.Orientation.Center, Game.Color.Blue, "Quit", gamestate.quit, .5, true)
+            Game.Color.Clear()
         elseif gamestate.staged then
             local bg = BackgroundImages["stage" .. gamestate.stagenum]
             if bg then
                 love.graphics.draw(bg, 0, 0, 0, Window.width / bg:getWidth(), Window.height / bg:getHeight())
             end
-            Game.Color.Set(Game.Color.Pink, Game.Shade.Neon)
-            love.graphics.circle("fill", 10, 10, 10)
-            love.graphics.print("STAGED", 50, 50)
-            Game.Color.Clear()
         elseif gamestate.transitioning then
             if gamestate.stagenum == 1 then
-                Game.Color.Set(Game.Color.Pink, Game.Shade.Neon)
-                love.graphics.circle("fill", 10, 10, 10)
-                love.graphics.print("blah blah you are a moth\n trying to return to the forest", 50, 50)
-                Game.Color.Clear()
+                Game.Color.Set(Game.Color.White, Game.Shade.Neon)
+                love.graphics.print("You begin where light once meant safety.\nThe buzz you hear is familiar - but wrong.\nIt's Cold.\nIt's Flickering.\nA guardian waits for you,\ncrackling with fury.\n\n\n[Space]", 50, 375, 0, .5, .5)
             elseif gamestate.stagenum == 2 then
-                Game.Color.Set(Game.Color.Pink, Game.Shade.Neon)
-                love.graphics.circle("fill", 10, 10, 10)
-                love.graphics.print("blah blah you must cross the\n field to the forests edge", 50, 50)
+                Game.Color.Set(Game.Color.White, Game.Shade.Neon)
+                love.graphics.print("Beyond the porch lies the tall grass,\nwaving in a wind that doesn't blow.\nYou remember chasing shadows here.\nNow one chases you.\n\n\n[Space]", 50, 450, 0, .5, .5)
                 Game.Color.Clear()
             elseif gamestate.stagenum == 3 then
-                Game.Color.Set(Game.Color.Pink, Game.Shade.Neon)
-                love.graphics.circle("fill", 10, 10, 10)
-                love.graphics.print("blah blah you must defeat the\n guardian of the forests edge", 50, 50)
+                Game.Color.Set(Game.Color.White, Game.Shade.Neon)
+                love.graphics.print("The trail narrows. The canopy thickens. Every branch looks like a claw.\nThen you see it - not moving, not breathing, not blinking.\nA deer's head, rotted and overgrown, stares from the roots like it's always been there.\nIt doesn't attack. It doesn't need to. The forest distorts around it.\n\n\n[Space]", 50, 450, 0, .5, .5)
                 Game.Color.Clear()
             elseif gamestate.stagenum == 4 then
-                Game.Color.Set(Game.Color.Pink, Game.Shade.Neon)
-                love.graphics.circle("fill", 10, 10, 10)
-                love.graphics.print("blah blah you're nearing the\n heart of the forest", 50, 50)
+                Game.Color.Set(Game.Color.White, Game.Shade.Neon)
+                love.graphics.print("You descend, and the walls breathe with you.\nColors bloom without light.\nMusic echoes without sound.\nEvery step feels like it's already happened.\n\n\n[Space]", 50, 450, 0, .5, .5)
                 Game.Color.Clear()
             elseif gamestate.stagenum == 5 then
-                Game.Color.Set(Game.Color.Pink, Game.Shade.Neon)
-                love.graphics.circle("fill", 10, 10, 10)
-                love.graphics.print("blah blah you must defeat the\n heart of the forest", 50, 50)
+                Game.Color.Set(Game.Color.White, Game.Shade.Neon)
+                love.graphics.print("You are home, somewhere that remembers you.\nThe bloom opens.\nYou see yourself in the petals.\nYou hear your name in the roots.\n\n\n[Space]", 50, 450, 0, .5, .5)
                 Game.Color.Clear()
             end
         elseif gamestate.gameover then
             if not gamestate.win then
                 Game.Color.Set(Game.Color.Red, Game.Shade.Neon)
-                love.graphics.circle("fill", 10, 10, 10)
                 love.graphics.print("GAME OVER", Window.width/2 - font:getWidth("GAME OVER")/2, Window.height/2 - font:getHeight()/2, 0)
                 Game.Color.Clear()
             else
                 Game.Color.Set(Game.Color.White, Game.Shade.Neon)
-                love.graphics.circle("fill", 10, 10, 10)
                 love.graphics.print("YOU WIN!", Window.width/2 - font:getWidth("YOU WIN!")/2, Window.height/2 - font:getHeight()/2, 0)
                 Game.Color.Clear()
             end
         end
         if gamestate.paused then
             Game.Color.Set(Game.Color.Yellow, Game.Shade.Neon)
-            love.graphics.circle("fill", 10, 10, 10)
             love.graphics.print("PAUSED", Window.width/2 - font:getWidth("PAUSED")/2, Window.height/2 - font:getHeight()/2, 0)
             Game.Color.Clear()
         end
