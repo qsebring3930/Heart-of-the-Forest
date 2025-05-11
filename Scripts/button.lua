@@ -1,10 +1,9 @@
-local love = require "love"
 local game = require "Scripts/game"
 
 function Button()
     local Game = game()
     local button = {
-        text = text,
+        text = "text",
         x = 0,
         y = 0,
         textX = 0,
@@ -38,9 +37,9 @@ function Button()
         Game.Color.Set(Game.Color.Black)
         love.graphics.print(text, button.textX, button.textY, 0, scale, scale)
         Game.Color.Clear()
-    end 
-    function button.checkClick(mx, my) 
-        if mx >= button.x and mx <= button.x + button.width and 
+    end
+    function button.checkClick(mx, my)
+        if mx >= button.x and mx <= button.x + button.width and
             my >= button.y and my <= button.y + button.height and
             button.func then
                 button.func()

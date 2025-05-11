@@ -1,4 +1,3 @@
-local love = require "love"
 local player = require "Scripts/player"
 local game = require "Scripts/game"
 local projectile = require "Scripts/projectile"
@@ -7,22 +6,43 @@ local gamestate = require "Scripts/gamestate"
 local button = require "Scripts/button"
 local overlay = require "Scripts/overlay"
 
-
-
-
 function love.load()
-    backgroundMusic = {
+    BackgroundMusic = {
         menu = love.audio.newSource("Assets/Sounds/Funnie.mp3", "stream"),
         game = love.audio.newSource("Assets/Sounds/Bipolar hands demo.mp3", "stream"),
     }
-    gameFont = love.graphics.newFont("Assets/Fonts/DungeonFont.ttf", 72)
-    love.graphics.setFont(gameFont)
-    backgroundMusic.menu:setLooping(true)
-    backgroundMusic.menu:setVolume(0.5)  -- optional volume control
-    backgroundMusic.menu:play()
-    Game = game()
-    GameState = gamestate()
-    love.graphics.setBackgroundColor(0.36, 0, .64, 0)
+    BossImages = {
+        zapper = love.graphics.newImage("Assets/Sprites/zapper.png"),
+        cat = love.graphics.newImage("Assets/Sprites/cat.png"),
+        deer = love.graphics.newImage("Assets/Sprites/deer.png"),
+        mushroom = love.graphics.newImage("Assets/Sprites/mushroom.png"),
+        flower = love.graphics.newImage("Assets/Sprites/flower.png")
+    }
+    ProjectileImages = {
+        ball = love.graphics.newImage("Assets/Sprites/ball.png"),
+        drop = love.graphics.newImage("Assets/Sprites/drop.png"),
+        tracker = love.graphics.newImage("Assets/Sprites/tracker.png"),
+        point = love.graphics.newImage("Assets/Sprites/point.png"),
+        fire = love.graphics.newImage("Assets/Sprites/fire.png"),
+        bolt = love.graphics.newImage("Assets/Sprites/bolt.png"),
+        bomb = love.graphics.newImage("Assets/Sprites/bomb.png"),
+        spit = love.graphics.newImage("Assets/Sprites/spit.png"),
+    }
+    BackgroundImages = {
+        menu = love.graphics.newImage("Assets/Backgrounds/2304x1296(2).png"),
+        stage1 = love.graphics.newImage("Assets/Backgrounds/Summer1.png"),
+        stage2 = love.graphics.newImage("Assets/Backgrounds/Summer7.png"),
+        stage3 = love.graphics.newImage("Assets/Backgrounds/2304x1296.png"),
+        stage4 = love.graphics.newImage("Assets/Backgrounds/Preview 1.png"),
+        stage5 = love.graphics.newImage("Assets/Backgrounds/2304x1296 (1).png")
+    }
+    GameFont = love.graphics.newFont("Assets/Fonts/DungeonFont.ttf", 72)
+    love.graphics.setFont(GameFont)
+    BackgroundMusic.menu:setLooping(true)
+    BackgroundMusic.menu:setVolume(0.5)  -- optional volume control
+    BackgroundMusic.menu:play()
+    GameObject = game()
+    GameState = gamestate(BackgroundImages)
     InitWindow()
     InitStage()
     GameCanvas = love.graphics.newCanvas(Window.width, Window.height)
@@ -31,24 +51,20 @@ function love.load()
 end
 
 function love.update(dt)
-    GameState.update()
     if GameState.staged and not GameState.paused and not GameState.gameover then
         overlay.update(dt)
         GetKeys(dt)
-        Projectiles.update(dt, Player, Boss)
-        Boss.update(dt)
-        Boss.shoot(Projectiles, dt)
-        if Player.fireTimer <= 0 then
-            Player.shoot(Projectiles)
-        end
-        Player.update(dt)
+        Projectiles.update(dt, PlayerObject, BossObject)
+        BossObject.update(dt)
+        BossObject.shoot(Projectiles, dt)
+        PlayerObject.update(dt)
     end
 end
 
 function love.draw()
     -- draw game to canvas
     love.graphics.setCanvas(GameCanvas)
-    love.graphics.clear(0.36, 0, 0.64, 1.0)
+    love.graphics.clear()
 
     love.graphics.translate(Window.translateX, Window.translateY)
     love.graphics.scale(Window.scale)
@@ -57,9 +73,9 @@ function love.draw()
     if GameState.running then
         GameState.draw()
         if GameState.staged then
-            Player.draw()
+            PlayerObject.draw()
             Projectiles.draw()
-            Boss.draw()
+            BossObject.draw()
         end
     end
 
@@ -78,31 +94,16 @@ function InitWindow()
 end
 
 function InitStage()
-    local bossImages = {
-        zapper = love.graphics.newImage("Assets/Sprites/zapper.png"),
-        cat = love.graphics.newImage("Assets/Sprites/cat.png"),
-        deer = love.graphics.newImage("Assets/Sprites/deer.png"),
-        mushroom = love.graphics.newImage("Assets/Sprites/mushroom.png"),
-        flower = love.graphics.newImage("Assets/Sprites/flower.png")
-    }
-    local projectileImages = {
-        ball = love.graphics.newImage("Assets/Sprites/ball.png"),
-        drop = love.graphics.newImage("Assets/Sprites/drop.png"),
-        tracker = love.graphics.newImage("Assets/Sprites/tracker.png"),
-        point = love.graphics.newImage("Assets/Sprites/point.png"),
-        fire = love.graphics.newImage("Assets/Sprites/fire.png"),
-        bolt = love.graphics.newImage("Assets/Sprites/bolt.png"),
-        bomb = love.graphics.newImage("Assets/Sprites/bomb.png"),
-        spit = love.graphics.newImage("Assets/Sprites/spit.png"),
-    }
-    Player = player(Width / 2, Height * 3 / 4, love.graphics.newImage("Assets/Sprites/moth-ss.png"))
-    Boss = boss(Width / 2, Height * 1 / 4, Player, GameState.stagenum, bossImages)
-    Boss.stage()
-    Projectiles = projectile(projectileImages)
+
+
+    PlayerObject = player(Width / 2, Height * 3 / 4, love.graphics.newImage("Assets/Sprites/moth-ss.png"))
+    BossObject = boss(Width / 2, Height * 1 / 4, PlayerObject, GameState.stagenum, BossImages)
+    BossObject.stage()
+    Projectiles = projectile(ProjectileImages)
 end
 
 function WithinBounds()
-    if Player.x + 10 <= Window.width and Player.x - 10 >= 0 and Player.y + 10 <= Window.height and Player.y - 10 >= 0 then
+    if PlayerObject.x + 10 <= Window.width and PlayerObject.x - 10 >= 0 and PlayerObject.y + 10 <= Window.height and PlayerObject.y - 10 >= 0 then
         return true
     end
     return false
@@ -112,36 +113,34 @@ function GetKeys(dt)
     if love.keyboard.isDown('w', 'a', 's', 'd') and WithinBounds() then
         if love.keyboard.isDown("d") then
             if overlay.cur == 3 and overlay.controlsBackwards > 0 then
-                Player.move(Game.Direction.Left, dt)
+                PlayerObject.move(GameObject.Direction.Left, dt)
             else
-                Player.move(Game.Direction.Right, dt)
+                PlayerObject.move(GameObject.Direction.Right, dt)
             end
         end
         if love.keyboard.isDown("a") then
             if overlay.cur == 3 and overlay.controlsBackwards > 0 then
-                Player.move(Game.Direction.Right, dt)
+                PlayerObject.move(GameObject.Direction.Right, dt)
             else
-                Player.move(Game.Direction.Left, dt)
+                PlayerObject.move(GameObject.Direction.Left, dt)
             end
         end
         if love.keyboard.isDown("s") then
-            Player.move(Game.Direction.Down, dt)
+            PlayerObject.move(GameObject.Direction.Down, dt)
         end
         if love.keyboard.isDown("w") then
-            Player.move(Game.Direction.Up, dt)
+            PlayerObject.move(GameObject.Direction.Up, dt)
         end
     else
-        Player.move(Game.Direction.None, dt)
+        PlayerObject.move(GameObject.Direction.None, dt)
     end
-    if love.keyboard.isDown("space") and Player.fireTimer <= 0 then
-        Player.shoot(Projectiles)
+    if love.keyboard.isDown("space") and PlayerObject.fireTimer <= 0 then
+        PlayerObject.shoot(Projectiles)
     end
 end
 
 function love.keypressed(key)
-    if key == "z" then
-        Player.projectileModifiers.Wiggly = not Player.projectileModifiers.Wiggly
-    elseif key == "f" then
+    if key == "f" then
         if love.window.getFullscreen() then
             love.window.setFullscreen(false)
             Window.scale = 1
@@ -149,6 +148,8 @@ function love.keypressed(key)
             love.window.setFullscreen(true)
             Window.scale = 4
         end
+        Width, Height = love.graphics.getDimensions()
+        Resize(Width, Height)
     elseif key == "t" then
         GameState.transition()
     elseif key == "p" or key == "escape" then

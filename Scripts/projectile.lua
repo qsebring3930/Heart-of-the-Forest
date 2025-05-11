@@ -1,4 +1,3 @@
-local love = require "love"
 local game = require "Scripts/game"
 local overlay = require "Scripts/overlay"
 local animation = require "Scripts/animation"
@@ -8,7 +7,7 @@ function Projectile(images)
     local sprites = images
     local Game = game()
     local Animation = animation()
-    function spawn(owner)
+    function Spawn(owner)
         local p = {
             owner = owner,
             x = owner.x,
@@ -31,7 +30,7 @@ function Projectile(images)
             zigzag = owner.projectileModifiers.Zigzag or nil,
             radial = owner.projectileModifiers.Radial or nil,
             spiral2 = owner.projectileModifiers.Spiral2 or nil,
-            active = true,
+            isplayer = owner.projectileModifiers.isPlayer or nil,
             sprite = nil,
             spriteScale = 0
         }
@@ -128,7 +127,7 @@ function Projectile(images)
             p.sprite = Animation.new(sprites.fire, 47, 59, 1, 1)
             p.spriteScale = .5
         end
-        if owner == Player then
+        if p.isplayer then
             p.speed = 600
             p.radius = 3
             p.vx = owner.vx * .5
@@ -214,7 +213,9 @@ function Projectile(images)
                     p.y = p.y + p.vy * dt
                 end
                 p.radius = p.radius + 1.25 * dt
-                p.sprite.update(dt)
+                if p.sprite then
+                    p.sprite.update(dt)
+                end
                 local isBossProjectile = (p.owner == Boss) or (p.split)
                 local hitBoss = p.owner == Player and CheckCollision(p, Boss)
                 local hitPlayer = isBossProjectile and CheckCollision(p, Player)
@@ -254,13 +255,14 @@ function Projectile(images)
     end
     function DrawProjectiles()
         for _, p in ipairs(Projectiles.list) do
-            p.sprite.draw(p.x, p.y, p.spriteScale)
+            if p.sprite then
+                p.sprite.draw(p.x, p.y, p.spriteScale)
+            end
         end
-        Game.Color.Clear()
     end
     return {
         list = projectiles,
-        spawn = spawn,
+        spawn = Spawn,
         update = UpdateProjectiles,
         draw = DrawProjectiles
     }

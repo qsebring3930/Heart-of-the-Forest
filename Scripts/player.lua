@@ -1,4 +1,3 @@
-local love = require "love"
 local game = require "Scripts/game"
 local overlay = require "Scripts/overlay"
 local animation = require "Scripts/animation"
@@ -15,7 +14,9 @@ function Player(x, y, image)
         speed = 200,
         fireCooldown = 0.1,
         fireTimer = 0,
-        projectileModifiers = {},
+        projectileModifiers = {
+            isPlayer = true,
+        },
         anim = Animation.new(image, 162, 79, 4, 0.1)
     }
     function player.move(direction, dt)
@@ -42,13 +43,13 @@ function Player(x, y, image)
             dx = dx / len
             dy = dy / len
         end
-    
+
         player.vx = dx * magnitude/dt
         player.vy = dy * magnitude/dt
-    
+
         player.x = player.x + player.vx * dt
         player.y = player.y + player.vy * dt
-    
+
         player.x = math.max(player.size, math.min(Window.width - player.size, player.x))
         player.y = math.max(player.size, math.min(Window.height - player.size, player.y))
     end
@@ -70,4 +71,3 @@ function Player(x, y, image)
 end
 
 return Player
-    
