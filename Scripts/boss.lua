@@ -63,7 +63,7 @@ function Boss(x, y, player, stage)
         if boss.id == 1 then
             boss.speed = 200
             boss.size = 75
-            boss.health = 20 --200
+            boss.health = 20
             boss.projectileBase = .75
             boss.projectiles = {
                 bomb = false,
@@ -80,7 +80,7 @@ function Boss(x, y, player, stage)
         elseif boss.id == 2 then
             boss.speed =  200
             boss.size = 75
-            boss.health = 20 --225 --350
+            boss.health = 225 --350
             boss.projectiles = {
                 bomb = {1,3,5,7},
                 tracking = {0,2,4,6},
@@ -97,14 +97,14 @@ function Boss(x, y, player, stage)
         elseif boss.id == 3 then
             boss.speed = 200
             boss.size = 75
-            boss.health = 20 --250 --450
+            boss.health = 250 --450
             boss.projectiles = {
                 bomb = false,
                 tracking = false,
                 zigzag = false,
                 sine = {0,3,4,7},
-                spiral = {0,1,6,7},
-                radial = {0,3,5,8},
+                spiral = {1,6,7},
+                radial = {3,5,8},
                 spiral2 = {0,1,6,7}
             }
             boss.projectileBase = .5
@@ -114,7 +114,7 @@ function Boss(x, y, player, stage)
         elseif boss.id == 4 then
             boss.speed = 200
             boss.size = 75
-            boss.health = 20 --275 --550
+            boss.health = 275 --550
             boss.projectiles = {
                 bomb = {3, 7},
                 tracking = {1, 4, 6},
@@ -131,7 +131,7 @@ function Boss(x, y, player, stage)
         elseif boss.id == 5 then
             boss.speed = 200
             boss.size = 75
-            boss.health = 20 --300 --650
+            boss.health = 300 --650
             boss.projectiles = {
                 bomb = {6},
                 tracking = {1, 3, 5, 7, 11},

@@ -72,7 +72,6 @@ function Gamestate()
     end
     function gamestate.getTimer()
         local seconds = gamestate.timer
-        print("Seconds: " .. seconds)
         local minutes = math.floor(seconds / 60)
         local prettySeconds
         if seconds > 1 then

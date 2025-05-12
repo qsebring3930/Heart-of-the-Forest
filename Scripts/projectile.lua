@@ -87,7 +87,7 @@ function Projectile()
             p.vx = (dx / len) * p.speed
             p.vy = (dy / len) * p.speed
             p.sprite = Animation.new(ProjectileImages.bomb, 26, 28, 1, 1)
-            p.spriteScale = 1
+            p.spriteScale = 2
         end
         if p.zigzag then
             p.speed = 110
@@ -168,19 +168,23 @@ function Projectile()
                     else
                         p.lifetime = p.lifetime - 1
                         if p.lifetime == 0 then
-                            local split = {
-                                x = p.x,
-                                y = p.y,
-                                vx = p.vx,
-                                vy = p.vy,
-                                projectileModifiers = {
-                                    Tracking = true,
-                                    Split = true
-                                },
-                                target = Player,
-                                owner = Boss
-                            }
-                            Projectiles.spawn(split)
+                            local projectileCount = 4
+                            for i = 0, projectileCount - 1 do
+                                local split = {
+                                    x = p.x,
+                                    y = p.y,
+                                    vx = 0,
+                                    vy = 0,
+                                    projectileModifiers = {
+                                        Radial = true,
+                                        Split = true
+                                    },
+                                    projectileIndex = i,
+                                    projectileCount = projectileCount,
+                                    owner = Boss
+                                }
+                                Spawn(split)
+                            end
                             table.remove(Projectiles.list, i)
                         end
                     end
