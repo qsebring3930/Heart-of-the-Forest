@@ -21,6 +21,7 @@ function Game()
             Dark = "dark",
             Light = "light",
             Neon = "neon",
+            NeonTransparent = "NeonTransparent",
         }
         function color.Clear()
             love.graphics.setColor(1, 1, 1, 1)
@@ -64,10 +65,16 @@ function Game()
                 r = r + (1 - r) * 0.2
                 g = g + (1 - g) * 0.2
                 b = b + (1 - b) * 0.2
+            elseif inShade == shade.NeonTransparent then
+                r = r + (1 - r) * 0.2
+                g = g + (1 - g) * 0.2
+                b = b + (1 - b) * 0.2
+                a = .5
             end
 
             love.graphics.setColor(r, g, b, a)
         end
+
         local orientation = {
             Center = "center",
             Top = "top",

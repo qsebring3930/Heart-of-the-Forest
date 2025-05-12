@@ -63,6 +63,11 @@ function Player(x, y)
     end
     function player.draw()
         player.anim.draw(player.x, player.y, 0.3)
+        if GameState.stagenum == 3 and overlay.intensity > 0 then
+            Game.Color.Set(Game.Color.Green, Game.Shade.NeonTransparent)
+            love.graphics.circle("fill", player.x, player.y, 30 * overlay.intensity)
+            Game.Color.Clear()
+        end
     end
     function player.hit()
         overlay.increment()

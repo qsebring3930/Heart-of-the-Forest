@@ -9,7 +9,7 @@ local overlay = require "Scripts/overlay"
 function love.load()
     BackgroundMusic = {
         menu = love.audio.newSource("Assets/Sounds/Funnie.mp3", "stream"),
-        game = love.audio.newSource("Assets/Sounds/Bipolar hands demo.mp3", "stream"),
+        game = love.audio.newSource("Assets/Sounds/Bipolar hands demo 1.3 Fix.mp3", "stream"),
     }
     BossImages = {
         zapper = love.graphics.newImage("Assets/Sprites/zapper.png"),
@@ -56,8 +56,11 @@ function love.load()
 end
 
 function love.update(dt)
-    overlay.update(dt)
+    if not GameState.paused then
+        overlay.update(dt)
+    end
     if GameState.staged and not GameState.paused and not GameState.gameover and not GameState.fading then
+        GameState.update(dt)
         GetKeys(dt)
         Projectiles.update(dt, PlayerObject, BossObject)
         BossObject.update(dt)
@@ -82,6 +85,11 @@ function love.draw()
             Projectiles.draw()
             BossObject.draw()
         end
+        if GameState.paused then
+            GameObject.Color.Set(GameObject.Color.Yellow, GameObject.Shade.Neon)
+            love.graphics.print("PAUSED", Window.width/2 - GameFont:getWidth("PAUSED")/2, Window.height/2 - GameFont:getHeight()/2, 0)
+            GameObject.Color.Clear()
+        end
     end
 
     love.graphics.setCanvas()
@@ -102,7 +110,7 @@ function InitStage()
     PlayerObject = player(Window.width / 2, Window.height * 3 / 4)
     BossObject = boss(Window.width / 2, Window.height * 1 / 4, PlayerObject, GameState.stagenum)
     BossObject.stage()
-    Projectiles = projectile(ProjectileImages)
+    Projectiles = projectile()
 end
 
 function WithinBounds()
@@ -154,19 +162,17 @@ function love.keypressed(key)
         Width, Height = love.graphics.getDimensions()
         Resize(Width, Height)
     elseif key == "t" then
-        GameState.transition()
+        --GameState.transition()
     elseif key == "p" or key == "escape" then
         GameState.paused = not GameState.paused
     elseif key == "q" then
-        GameState.quit()
+        --GameState.quit()
     elseif key == "r" then
-        GameState.staged = true
-        GameState.stagenum = 1
+        GameState.staged = false
+        GameState.transitioning= true
         GameState.gameover = false
         GameState.win = false
         overlay.set(0)
-        overlay.cur = 1
-        InitStage()
     elseif key == "space" then
         if GameState.transitioning then
             GameState.transition()

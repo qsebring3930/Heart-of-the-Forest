@@ -15,7 +15,8 @@ function Gamestate()
         stagenum = 0,
         transnum = 0,
         buttons = {},
-        fading = false
+        fading = false,
+        timer = 0,
     }
     function gamestate.transition()
         if gamestate.fading then return end
@@ -23,7 +24,6 @@ function Gamestate()
         gamestate.fading = true
         overlay.fadeTo(1, gamestate.completeTransition)
     end
-
     function gamestate.completeTransition()
         gamestate.fading = false
 
@@ -67,6 +67,21 @@ function Gamestate()
         end
         love.event.quit()
     end
+    function gamestate.update(dt)
+        gamestate.timer = gamestate.timer + dt
+    end
+    function gamestate.getTimer()
+        local seconds = gamestate.timer
+        print("Seconds: " .. seconds)
+        local minutes = math.floor(seconds / 60)
+        local prettySeconds
+        if seconds > 1 then
+            prettySeconds = math.floor(seconds % 60)
+        else
+            prettySeconds = 1
+        end
+        return minutes, prettySeconds
+    end
     function gamestate.draw()
         local font = love.graphics.getFont()
         if gamestate.menu then
@@ -85,6 +100,11 @@ function Gamestate()
             if bg then
                 love.graphics.draw(bg, 0, 0, 0, Window.width / bg:getWidth(), Window.height / bg:getHeight())
             end
+            local minutes, seconds = gamestate.getTimer()
+            local timeString = string.format("%02d:%02d", minutes, seconds)
+            Game.Color.Set(Game.Color.White, Game.Shade.Neon)
+            love.graphics.print("Time: " .. timeString, 50, 50, 0, 0.5, 0.5)
+            Game.Color.Clear()
         elseif gamestate.transitioning then
             if gamestate.stagenum == 1 then
                 Game.Color.Set(Game.Color.White, Game.Shade.Neon)
@@ -116,11 +136,6 @@ function Gamestate()
                 love.graphics.print("YOU WIN!", Window.width/2 - font:getWidth("YOU WIN!")/2, Window.height/2 - font:getHeight()/2, 0)
                 Game.Color.Clear()
             end
-        end
-        if gamestate.paused then
-            Game.Color.Set(Game.Color.Yellow, Game.Shade.Neon)
-            love.graphics.print("PAUSED", Window.width/2 - font:getWidth("PAUSED")/2, Window.height/2 - font:getHeight()/2, 0)
-            Game.Color.Clear()
         end
     end
 
