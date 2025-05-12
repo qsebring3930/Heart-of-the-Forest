@@ -114,7 +114,7 @@ function Gamestate()
                 Game.Color.Clear()
             elseif gamestate.stagenum == 3 then
                 Game.Color.Set(Game.Color.White, Game.Shade.Neon)
-                love.graphics.print("The trail narrows. The canopy thickens. Every branch looks like a claw.\nThen you see it - not moving, not breathing, not blinking.\nA deer's head, rotted and overgrown, stares from the roots like it's always been there.\nIt doesn't attack. It doesn't need to. The forest distorts around it.\n\n\n[Space]", 50, 450, 0, .5, .5)
+                love.graphics.print("The canopy thickens. Every branch looks alive.\nThen you see it - not moving, not breathing, not blinking.\nIt doesn't attack. It doesn't need to.\nThe forest distorts around it.\n\n\n[Space]", 50, 450, 0, .5, .5)
                 Game.Color.Clear()
             elseif gamestate.stagenum == 4 then
                 Game.Color.Set(Game.Color.White, Game.Shade.Neon)
@@ -128,11 +128,16 @@ function Gamestate()
         elseif gamestate.gameover then
             if not gamestate.win then
                 Game.Color.Set(Game.Color.Red, Game.Shade.Neon)
-                love.graphics.print("GAME OVER", Window.width/2 - font:getWidth("GAME OVER")/2, Window.height/2 - font:getHeight()/2, 0)
+                love.graphics.print("GAME OVER", Window.width/2 - font:getWidth("GAME OVER"), Window.height/2 - font:getHeight(), 0, 2, 2)
+                love.graphics.print("\n\n\n\n\n\n[Press R to restart]", 50, 450, 0, .5, .5)
                 Game.Color.Clear()
             else
                 Game.Color.Set(Game.Color.White, Game.Shade.Neon)
-                love.graphics.print("YOU WIN!", Window.width/2 - font:getWidth("YOU WIN!")/2, Window.height/2 - font:getHeight()/2, 0)
+                love.graphics.print("YOU WIN!", Window.width/2 - font:getWidth("YOU WIN!"), Window.height/2 - font:getHeight(), 0, 2, 2)
+                local minutes, seconds = gamestate.getTimer()
+                local timeString = string.format("%02d:%02d", minutes, seconds)
+                love.graphics.print("You became the heart of the forest in: " .. timeString, Window.width/2 - font:getWidth("You became the Heart of the Forest in: 02:02")/6, Window.height/2 - font:getHeight()/6 + 100, 0, 0.33, 0.33)
+                love.graphics.print("\n\n\n\n\n\n[Press R to return to menu]", 50, 450, 0, .5, .5)
                 Game.Color.Clear()
             end
         end

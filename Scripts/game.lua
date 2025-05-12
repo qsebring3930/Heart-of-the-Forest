@@ -21,12 +21,13 @@ function Game()
             Dark = "dark",
             Light = "light",
             Neon = "neon",
-            NeonTransparent = "NeonTransparent",
+            NeonTransparent = "neontransparent",
+            Transparent = "transparent",
         }
         function color.Clear()
             love.graphics.setColor(1, 1, 1, 1)
         end
-        function color.Set(inColor, inShade)
+        function color.Set(inColor, inShade, alpha)
             local r, g, b, a = 1, 1, 1, 1
 
             -- Base color mapping
@@ -70,8 +71,12 @@ function Game()
                 g = g + (1 - g) * 0.2
                 b = b + (1 - b) * 0.2
                 a = .5
+            elseif inShade == shade.Transparent then
+                a = 0.1 + love.math.random() * 0.1
             end
-
+            if alpha then
+                a = alpha
+            end
             love.graphics.setColor(r, g, b, a)
         end
 

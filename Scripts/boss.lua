@@ -63,7 +63,7 @@ function Boss(x, y, player, stage)
         if boss.id == 1 then
             boss.speed = 200
             boss.size = 75
-            boss.health = 20
+            boss.health = 200
             boss.projectileBase = .75
             boss.projectiles = {
                 bomb = false,
@@ -83,7 +83,7 @@ function Boss(x, y, player, stage)
             boss.health = 225 --350
             boss.projectiles = {
                 bomb = {1,3,5,7},
-                tracking = {0,2,4,6},
+                tracking = {0,4},
                 zigzag = {0,2,6},
                 sine = false,
                 spiral = {1,3,5,7},
@@ -117,9 +117,9 @@ function Boss(x, y, player, stage)
             boss.health = 275 --550
             boss.projectiles = {
                 bomb = {3, 7},
-                tracking = {1, 4, 6},
-                zigzag = {0, 2, 5},
-                sine = {1, 6},
+                tracking = {1, 4},
+                zigzag = {0, 2},
+                sine = {2, 4, 6},
                 spiral = {2, 4, 6},
                 radial = {0, 5},
                 spiral2 = false
@@ -183,7 +183,7 @@ function Boss(x, y, player, stage)
                 boss.projectileModifiers.Spiral = false
                 boss.projectileIndex = nil
                 boss.projectileCount = nil
-                boss.timers.spiral = boss.projectileBase/8
+                boss.timers.spiral = boss.projectileBase/4
             end
         end
         if boss.modeAllowed(boss.projectiles.sine, mode) then
@@ -241,7 +241,11 @@ function Boss(x, y, player, stage)
                 boss.projectileModifiers.Zigzag = false
                 boss.projectileIndex = nil
                 boss.projectileCount = nil
-                boss.timers.zigzag = boss.projectileBase/2
+                if boss.id == 4 then
+                    boss.timers.zigzag = boss.projectileBase
+                else
+                    boss.timers.zigzag = boss.projectileBase/2
+                end
             end
         end
         if boss.modeAllowed(boss.projectiles.radial, mode) then
@@ -269,7 +273,7 @@ function Boss(x, y, player, stage)
                 boss.projectileModifiers.Spiral2 = false
                 boss.projectileIndex = nil
                 boss.projectileCount = nil
-                boss.timers.spiral2 = boss.projectileBase/8
+                boss.timers.spiral2 = boss.projectileBase/4
             end
         end
     end

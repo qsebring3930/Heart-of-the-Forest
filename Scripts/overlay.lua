@@ -26,7 +26,7 @@ local shaderRedshift = love.graphics.newShader[[
         float offset = rand(column) * time * 20.0;
 
         // Apply vertical drip to that column
-        texCoord.y += offset * 0.0001 * intensity;
+        texCoord.y += offset * 0.0001 * intensity/2;
 
         // Re-sample with vertical offset
         pixel = Texel(tex, texCoord);
@@ -37,7 +37,7 @@ local shaderRedshift = love.graphics.newShader[[
         pixel.b *= 1.0 - intensity * 0.8;
 
         // Darken overall tone
-        float darkness = 1.0 - 0.5 * intensity;
+        float darkness = 1.0 - 0.45 * intensity;
         pixel.rgb *= darkness;
 
         return pixel;

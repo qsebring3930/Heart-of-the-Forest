@@ -31,12 +31,16 @@ function Projectile()
             spiral2 = owner.projectileModifiers.Spiral2 or nil,
             isplayer = owner.projectileModifiers.isPlayer or nil,
             sprite = nil,
-            spriteScale = 0
+            spriteScale = 0,
+            trail = {},
+            trailTimer = 0,
+            trailInterval = 0.02,
+            trailSprite = Animation.new(ProjectileImages.trail, 64, 64, 1, 1),
         }
         if p.spiral then
             p.speed = 150
-            p.color = Game.Color.Pink
-            p.shade = Game.Color.Light
+            p.color = Game.Color.Red
+            p.shade = Game.Shade.Light
             p.angularVelocity = .4
             if owner.projectileIndex and owner.projectileCount then
                 p.angle = (owner.projectileIndex / owner.projectileCount) * 2 * math.pi
@@ -49,7 +53,7 @@ function Projectile()
         if p.tracking and owner.target then
             p.speed = 150
             p.color = Game.Color.Yellow
-            p.shade = Game.Shade.Neon
+            p.shade = Game.Shade.Light
             local dx = owner.target.x - owner.x
             local dy = owner.target.y - owner.y
             local len = math.sqrt(dx * dx + dy * dy)
@@ -60,8 +64,8 @@ function Projectile()
         end
         if p.sine then
             p.speed = 135
-            p.color = Game.Color.Orange
-            p.shade = Game.Shade.Neon
+            p.color = Game.Color.Green
+            p.shade = Game.Shade.Light
             local angle = owner.angle + (owner.projectileIndex / (owner.projectileCount - 1)) * math.rad(160)
             p.vx = math.cos(angle) * p.speed
             p.vy = math.sin(angle) * p.speed
@@ -74,8 +78,8 @@ function Projectile()
             p.spriteScale = 1
         end
         if p.bomb and owner.target then
-            p.color = Game.Color.Purple
-            p.shade = Game.Color.Dark
+            p.color = Game.Color.Black
+            p.shade = Game.Shade.Light
             p.radius = 15
             p.lifetime = 50
             p.speed = 150
@@ -94,7 +98,7 @@ function Projectile()
             local angle = owner.angle + (owner.projectileIndex / (owner.projectileCount - 1)) * math.rad(120)
             p.vx = math.cos(angle) * p.speed
             p.vy = math.sin(angle) * p.speed
-            p.color = Game.Color.Blue
+            p.color = Game.Color.Pink
             p.shade = Game.Shade.Light
             p.zigzagDir = -1
             p.zigzagTimer = 10
@@ -103,8 +107,8 @@ function Projectile()
         end
         if p.radial then
             p.speed = 135
-            p.color = Game.Color.Red
-            p.shade = Game.Color.Light
+            p.color = Game.Color.Blue
+            p.shade = Game.Shade.Light
             if owner.projectileIndex and owner.projectileCount then
                 p.angle = (owner.projectileIndex / owner.projectileCount) * 2 * math.pi
             else
@@ -115,8 +119,8 @@ function Projectile()
         end
         if p.spiral2 then
             p.speed = 150
-            p.color = Game.Color.Pink
-            p.shade = Game.Color.Light
+            p.color = Game.Color.Orange
+            p.shade = Game.Shade.Light
             p.angularVelocity = .4
             if owner.projectileIndex and owner.projectileCount then
                 p.angle = (owner.projectileIndex / owner.projectileCount) * 2 * math.pi
@@ -129,6 +133,8 @@ function Projectile()
         if p.isplayer then
             p.speed = 600
             p.radius = 3
+            p.color = Game.Color.White
+            p.shade = Game.Shade.Light
             p.vx = owner.vx * .5
             p.vy = -900 + owner.vy * 0.3
             p.sprite = Animation.new(ProjectileImages.spit, 45, 35, 1, 1)
@@ -215,6 +221,26 @@ function Projectile()
                     p.x = p.x + p.vx * dt
                     p.y = p.y + p.vy * dt
                 end
+
+                p.trailTimer = p.trailTimer + dt
+                if p.trailTimer >= p.trailInterval then
+                    p.trailTimer = 0
+                    table.insert(p.trail, 1, {
+                        x = p.x + love.math.random(-3, 3),
+                        y = p.y + love.math.random(-3, 3),
+                        alpha = 0.6 + love.math.random() * 0.1
+                    })
+                    if #p.trail > 10 then
+                        table.remove(p.trail)
+                    end
+                end
+                for j = #p.trail, 1, -1 do
+                    p.trail[j].alpha = p.trail[j].alpha - dt * 2
+                    if p.trail[j].alpha <= 0 then
+                        table.remove(p.trail, j)
+                    end
+                end
+
                 p.radius = p.radius + 1.25 * dt
                 if p.sprite then
                     p.sprite.update(dt)
@@ -257,6 +283,16 @@ function Projectile()
     end
     function DrawProjectiles()
         for _, p in ipairs(Projectiles.list) do
+            for _, t in ipairs(p.trail) do
+                Game.Color.Set(p.color, p.shade, t.alpha * .2)
+                if p.trailSprite then
+                    p.trailSprite.draw(t.x, t.y, p.spriteScale/2)
+                else
+                    love.graphics.circle("fill", t.x, t.y, p.radius)
+                end
+            end
+            love.graphics.setColor(1, 1, 1, 1)
+
             if p.sprite then
                 p.sprite.draw(p.x, p.y, p.spriteScale)
             end

@@ -27,6 +27,7 @@ function love.load()
         bolt = love.graphics.newImage("Assets/Sprites/bolt.png"),
         bomb = love.graphics.newImage("Assets/Sprites/bomb.png"),
         spit = love.graphics.newImage("Assets/Sprites/spit.png"),
+        trail = love.graphics.newImage("Assets/Sprites/64x64 textures (98).png"),
     }
     BackgroundImages = {
         menu = love.graphics.newImage("Assets/Backgrounds/2304x1296(2).png"),
@@ -44,7 +45,7 @@ function love.load()
     GameFont = love.graphics.newFont("Assets/Fonts/DungeonFont.ttf", 72)
     love.graphics.setFont(GameFont)
     BackgroundMusic.menu:setLooping(true)
-    BackgroundMusic.menu:setVolume(0.5)  -- optional volume control
+    BackgroundMusic.menu:setVolume(0.5)
     BackgroundMusic.menu:play()
     GameObject = game()
     GameState = gamestate()
@@ -88,6 +89,7 @@ function love.draw()
         if GameState.paused then
             GameObject.Color.Set(GameObject.Color.Yellow, GameObject.Shade.Neon)
             love.graphics.print("PAUSED", Window.width/2 - GameFont:getWidth("PAUSED")/2, Window.height/2 - GameFont:getHeight()/2, 0)
+            love.graphics.print("\n\n\n\n\n\n[Press Q to quit]", Window.width/2 - GameFont:getWidth("[Press Q to quit]")/4, 450, 0, .5, .5)
             GameObject.Color.Clear()
         end
     end
@@ -95,7 +97,6 @@ function love.draw()
     love.graphics.setCanvas()
     love.graphics.clear()
     love.graphics.origin()
-    -- draw pixelated canvas
     overlay.draw(GameCanvas)
 end
 
@@ -164,15 +165,36 @@ function love.keypressed(key)
     elseif key == "t" then
         --GameState.transition()
     elseif key == "p" or key == "escape" then
-        GameState.paused = not GameState.paused
+        if not GameState.menu and not GameState.transitioning and not GameState.gameover then
+            GameState.paused = not GameState.paused
+        end
     elseif key == "q" then
-        --GameState.quit()
+        if GameState.paused then
+            GameState.quit()
+        end
     elseif key == "r" then
-        GameState.staged = false
-        GameState.transitioning= true
-        GameState.gameover = false
-        GameState.win = false
-        overlay.set(0)
+        if not GameState.win then
+            GameState.staged = false
+            GameState.transitioning= true
+            GameState.gameover = false
+            GameState.win = false
+            overlay.set(0)
+        else
+            GameState.staged = false
+            GameState.transitioning = false
+            GameState.stagenum = 0
+            GameState.menu = true
+            GameState.win = false
+            GameState.gameover = false
+            GameState.timer = 0
+            overlay.cur = 1
+            overlay.set(0)
+            BackgroundMusic.game:pause()
+            BackgroundMusic.menu:setLooping(true)
+            BackgroundMusic.menu:setVolume(0.5)
+            BackgroundMusic.menu:play()
+
+        end
     elseif key == "space" then
         if GameState.transitioning then
             GameState.transition()

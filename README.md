@@ -4,7 +4,7 @@ My submission to Game Jam Bullet Hell 2025.
 ## Audio
 - Music by Tommy Li – https://fishebowl.itch.io/
 
-## Art Credits
+## Art and Asset Credits
 
 - Moth Sprite by raccoontruck – https://raccoontruck.itch.io/fluttering-tiger-moth
 - Fonts by VRTXrry – https://vrtxrry.itch.io/dungeonfont
@@ -19,3 +19,4 @@ Some assets are licensed under the [Creative Commons Attribution 4.0 Internation
 This includes:
 
 - **Buttons/Boxes** by crusenho – [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+
