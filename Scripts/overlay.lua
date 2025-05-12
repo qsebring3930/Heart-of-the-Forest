@@ -100,6 +100,7 @@ function overlay.set(val)
     if overlay.intensity == 0 then
         overlay.controlsBackwards = 0
     end
+    overlay.time = val
 end
 
 function overlay.update(dt)

@@ -163,7 +163,8 @@ function love.keypressed(key)
         Width, Height = love.graphics.getDimensions()
         Resize(Width, Height)
     elseif key == "t" then
-        --GameState.transition()
+        --GameState.stagenum = 4
+        --overlay.cur = 4
     elseif key == "p" or key == "escape" then
         if not GameState.menu and not GameState.transitioning and not GameState.gameover then
             GameState.paused = not GameState.paused
@@ -173,27 +174,29 @@ function love.keypressed(key)
             GameState.quit()
         end
     elseif key == "r" then
-        if not GameState.win then
-            GameState.staged = false
-            GameState.transitioning= true
-            GameState.gameover = false
-            GameState.win = false
-            overlay.set(0)
-        else
-            GameState.staged = false
-            GameState.transitioning = false
-            GameState.stagenum = 0
-            GameState.menu = true
-            GameState.win = false
-            GameState.gameover = false
-            GameState.timer = 0
-            overlay.cur = 1
-            overlay.set(0)
-            BackgroundMusic.game:pause()
-            BackgroundMusic.menu:setLooping(true)
-            BackgroundMusic.menu:setVolume(0.5)
-            BackgroundMusic.menu:play()
+        if not GameState.paused then
+            if not GameState.win then
+                GameState.staged = false
+                GameState.transitioning= true
+                GameState.gameover = false
+                GameState.win = false
+                overlay.set(0)
+            else
+                GameState.staged = false
+                GameState.transitioning = false
+                GameState.stagenum = 0
+                GameState.menu = true
+                GameState.win = false
+                GameState.gameover = false
+                GameState.timer = 0
+                overlay.cur = 1
+                overlay.set(0)
+                BackgroundMusic.game:pause()
+                BackgroundMusic.menu:setLooping(true)
+                BackgroundMusic.menu:setVolume(0.5)
+                BackgroundMusic.menu:play()
 
+            end
         end
     elseif key == "space" then
         if GameState.transitioning then
