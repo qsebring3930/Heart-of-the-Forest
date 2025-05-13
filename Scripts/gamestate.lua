@@ -39,7 +39,7 @@ function Gamestate()
                 gamestate.transitioning = false
                 gamestate.staged = true
                 BackgroundMusic.game:setLooping(true)
-                BackgroundMusic.game:setVolume(0.5)
+                BackgroundMusic.game:setVolume(0.4)
                 BackgroundMusic.game:play()
                 InitStage()
             end

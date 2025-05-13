@@ -12,6 +12,7 @@ My submission to Game Jam Bullet Hell 2025.
 - Projectile Trails by pixelfranek – https://pixelfranek.itch.io/free-textures-of-light
 - Backgrounds by Free Game Assets – https://free-game-assets.itch.io/
 - Buttons/Boxes by crusenho – https://crusenho.itch.io/complete-ui-essential-pack
+- Projectile SFX by jdwasabi - https://jdwasabi.itch.io/8-bit-16-bit-sound-effects-pack
 
 ## Licensing
 

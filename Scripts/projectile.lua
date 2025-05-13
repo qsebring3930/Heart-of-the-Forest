@@ -38,10 +38,10 @@ function Projectile()
             trailSprite = Animation.new(ProjectileImages.trail, 64, 64, 1, 1),
         }
         if p.spiral then
-            p.speed = 150
+            p.speed = 125
             p.color = Game.Color.Red
             p.shade = Game.Shade.Light
-            p.angularVelocity = .4
+            p.angularVelocity = .3
             if owner.projectileIndex and owner.projectileCount then
                 p.angle = (owner.projectileIndex / owner.projectileCount) * 2 * math.pi
             else
@@ -51,7 +51,7 @@ function Projectile()
             p.spriteScale = 1
         end
         if p.tracking and owner.target then
-            p.speed = 150
+            p.speed = 125
             p.color = Game.Color.Yellow
             p.shade = Game.Shade.Light
             local dx = owner.target.x - owner.x
@@ -63,10 +63,10 @@ function Projectile()
             p.spriteScale = 1
         end
         if p.sine then
-            p.speed = 135
+            p.speed = 100
             p.color = Game.Color.Green
             p.shade = Game.Shade.Light
-            local angle = owner.angle + (owner.projectileIndex / (owner.projectileCount - 1)) * math.rad(160)
+            local angle = owner.angle + (owner.projectileIndex / (owner.projectileCount - 1)) * math.rad(180)
             p.vx = math.cos(angle) * p.speed
             p.vy = math.sin(angle) * p.speed
             local perpX = -math.sin(angle)
@@ -94,8 +94,8 @@ function Projectile()
             p.spriteScale = 2
         end
         if p.zigzag then
-            p.speed = 110
-            local angle = owner.angle + (owner.projectileIndex / (owner.projectileCount - 1)) * math.rad(120)
+            p.speed = 100
+            local angle = owner.angle + (owner.projectileIndex / (owner.projectileCount - 1)) * math.rad(125)
             p.vx = math.cos(angle) * p.speed
             p.vy = math.sin(angle) * p.speed
             p.color = Game.Color.Pink
@@ -106,7 +106,7 @@ function Projectile()
             p.spriteScale = 1
         end
         if p.radial then
-            p.speed = 135
+            p.speed = 100
             p.color = Game.Color.Blue
             p.shade = Game.Shade.Light
             if owner.projectileIndex and owner.projectileCount then
@@ -118,10 +118,10 @@ function Projectile()
             p.spriteScale = 1
         end
         if p.spiral2 then
-            p.speed = 150
+            p.speed = 125
             p.color = Game.Color.Orange
             p.shade = Game.Shade.Light
-            p.angularVelocity = .4
+            p.angularVelocity = .3
             if owner.projectileIndex and owner.projectileCount then
                 p.angle = (owner.projectileIndex / owner.projectileCount) * 2 * math.pi
             else
@@ -131,12 +131,12 @@ function Projectile()
             p.spriteScale = .5
         end
         if p.isplayer then
-            p.speed = 600
+            p.speed = 400
             p.radius = 3
             p.color = Game.Color.White
             p.shade = Game.Shade.Light
-            p.vx = owner.vx * .5
-            p.vy = -900 + owner.vy * 0.3
+            p.vx = math.cos(owner.angle) * p.speed
+            p.vy = math.sin(owner.angle) * p.speed
             p.sprite = Animation.new(ProjectileImages.spit, 45, 35, 1, 1)
             p.spriteScale = .5
         end
@@ -174,7 +174,7 @@ function Projectile()
                     else
                         p.lifetime = p.lifetime - 1
                         if p.lifetime == 0 then
-                            local projectileCount = 4
+                            local projectileCount = love.math.random(3,8)
                             for i = 0, projectileCount - 1 do
                                 local split = {
                                     x = p.x,
@@ -221,23 +221,24 @@ function Projectile()
                     p.x = p.x + p.vx * dt
                     p.y = p.y + p.vy * dt
                 end
-
-                p.trailTimer = p.trailTimer + dt
-                if p.trailTimer >= p.trailInterval then
-                    p.trailTimer = 0
-                    table.insert(p.trail, 1, {
-                        x = p.x + love.math.random(-3, 3),
-                        y = p.y + love.math.random(-3, 3),
-                        alpha = 0.6 + love.math.random() * 0.1
-                    })
-                    if #p.trail > 10 then
-                        table.remove(p.trail)
+                if not p.isplayer then
+                    p.trailTimer = p.trailTimer + dt
+                    if p.trailTimer >= p.trailInterval then
+                        p.trailTimer = 0
+                        table.insert(p.trail, 1, {
+                            x = p.x + love.math.random(-5, 5),
+                            y = p.y + love.math.random(-5, 5),
+                            alpha = 0.5 + love.math.random() * 0.2
+                        })
+                        if #p.trail > 20 then
+                            table.remove(p.trail)
+                        end
                     end
-                end
-                for j = #p.trail, 1, -1 do
-                    p.trail[j].alpha = p.trail[j].alpha - dt * 2
-                    if p.trail[j].alpha <= 0 then
-                        table.remove(p.trail, j)
+                    for j = #p.trail, 1, -1 do
+                        p.trail[j].alpha = p.trail[j].alpha - dt * 5
+                        if p.trail[j].alpha <= 0 then
+                            table.remove(p.trail, j)
+                        end
                     end
                 end
 
@@ -284,9 +285,9 @@ function Projectile()
     function DrawProjectiles()
         for _, p in ipairs(Projectiles.list) do
             for _, t in ipairs(p.trail) do
-                Game.Color.Set(p.color, p.shade, t.alpha * .2)
+                Game.Color.Set(p.color, Game.Shade.Neon, t.alpha * .4)
                 if p.trailSprite then
-                    p.trailSprite.draw(t.x, t.y, p.spriteScale/2)
+                    p.trailSprite.draw(t.x, t.y, p.spriteScale/3)
                 else
                     love.graphics.circle("fill", t.x, t.y, p.radius)
                 end

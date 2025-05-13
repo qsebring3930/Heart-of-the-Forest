@@ -111,7 +111,7 @@ function overlay.update(dt)
     end
     if overlay.cur == 5 then
         for shader, weight in pairs(overlay.activeStack) do
-            overlay.activeStack[shader] = math.max(0, weight - dt/10)
+            overlay.activeStack[shader] = math.max(0, weight - dt/30)
         end
     end
     if overlay.cur == 3 then

@@ -10,7 +10,7 @@ function Player(x, y)
         y = y,
         vx = 0,
         vy = 0,
-        size = 10,
+        size = 5,
         speed = 200,
         fireCooldown = 0.1,
         fireTimer = 0,
@@ -54,8 +54,18 @@ function Player(x, y)
         player.y = math.max(player.size, math.min(Window.height - player.size, player.y))
     end
     function player.shoot(projectiles)
-        projectiles.spawn(player)
+        player.projectileCount = 3
+        local baseAngle = math.rad(-90)
+        local spread = math.rad(30)
+
+        for i = 0, player.projectileCount - 1 do
+            local t = (player.projectileCount == 1) and 0.5 or (i / (player.projectileCount - 1))
+            player.projectileIndex = i
+            player.angle = baseAngle - spread / 2 + spread * t
+            projectiles.spawn(player)
+        end
         player.fireTimer = player.fireCooldown
+        Sounds.player:play()
     end
     function player.update(dt)
         player.fireTimer = player.fireTimer - dt
@@ -63,6 +73,9 @@ function Player(x, y)
     end
     function player.draw()
         player.anim.draw(player.x, player.y, 0.3)
+        Game.Color.Set(Game.Color.Red, Game.Shade.Light)
+        love.graphics.circle("fill", player.x, player.y, player.size)
+        Game.Color.Clear()
         if GameState.stagenum == 3 and overlay.intensity > 0 then
             Game.Color.Set(Game.Color.Green, Game.Shade.NeonTransparent)
             love.graphics.circle("fill", player.x, player.y, 20 + (30 * overlay.intensity))
@@ -71,6 +84,7 @@ function Player(x, y)
     end
     function player.hit()
         overlay.increment()
+        Sounds.hit:play()
     end
     return player
 end

@@ -11,6 +11,17 @@ function love.load()
         menu = love.audio.newSource("Assets/Sounds/Funnie.mp3", "stream"),
         game = love.audio.newSource("Assets/Sounds/Bipolar hands demo 1.3 Fix.mp3", "stream"),
     }
+    Sounds = {
+        player = love.audio.newSource("Assets/Sounds/Bubble heavy 1.wav", "stream"),
+        hit = love.audio.newSource("Assets/Sounds/Hit damage 1.wav", "stream"),
+        ball = love.audio.newSource("Assets/Sounds/Text 1.wav", "stream"),
+        drop = love.audio.newSource("Assets/Sounds/Bubble 1.wav", "stream"),
+        tracker = love.audio.newSource("Assets/Sounds/Blow 1V2.wav", "stream"),
+        point = love.audio.newSource("Assets/Sounds/Cancel 1.wav", "stream"),
+        fire = love.audio.newSource("Assets/Sounds/Block Break 1.wav", "stream"),
+        bolt = love.audio.newSource("Assets/Sounds/Jump 1.wav", "stream"),
+        bomb = love.audio.newSource("Assets/Sounds/Boss hit 1.wav", "stream"),
+    }
     BossImages = {
         zapper = love.graphics.newImage("Assets/Sprites/zapper.png"),
         cat = love.graphics.newImage("Assets/Sprites/cat.png"),
@@ -44,8 +55,24 @@ function love.load()
     PlayerImage = love.graphics.newImage("Assets/Sprites/moth-ss.png")
     GameFont = love.graphics.newFont("Assets/Fonts/DungeonFont.ttf", 72)
     love.graphics.setFont(GameFont)
+    Sounds.player:setVolume(0.3)
+    Sounds.ball:setVolume(0.15)
+    Sounds.drop:setVolume(0.15)
+    Sounds.tracker:setVolume(0.05)
+    Sounds.point:setVolume(0.15)
+    Sounds.fire:setVolume(0.15)
+    Sounds.bolt:setVolume(0.05)
+    Sounds.bomb:setVolume(0.3)
+    Sounds.hit:setVolume(0.8)
+    Sounds.hit:setPitch(0.3)
+    Sounds.bomb:setPitch(0.5)
+    Sounds.fire:setPitch(0.5)
+    Sounds.bolt:setPitch(1.5)
+    Sounds.ball:setPitch(2)
+    Sounds.point:setPitch(2)
+    Sounds.tracker:setPitch(2)
     BackgroundMusic.menu:setLooping(true)
-    BackgroundMusic.menu:setVolume(0.5)
+    BackgroundMusic.menu:setVolume(0.4)
     BackgroundMusic.menu:play()
     GameObject = game()
     GameState = gamestate()
@@ -115,7 +142,7 @@ function InitStage()
 end
 
 function WithinBounds()
-    if PlayerObject.x + 10 <= Window.width and PlayerObject.x - 10 >= 0 and PlayerObject.y + 10 <= Window.height and PlayerObject.y - 10 >= 0 then
+    if PlayerObject.x + 5 <= Window.width and PlayerObject.x - 5 >= 0 and PlayerObject.y + 5 <= Window.height and PlayerObject.y - 5 >= 0 then
         return true
     end
     return false
