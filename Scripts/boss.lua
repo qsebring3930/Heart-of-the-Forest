@@ -42,7 +42,8 @@ function Boss(x, y, player, stage)
             spiral2 = false
         },
         sprite = nil,
-        spriteScale = 0
+        spriteScale = 0,
+        healthRatio = 0,
     }
     function boss.stage()
         --[[if boss.id == 1 then
@@ -289,7 +290,11 @@ function Boss(x, y, player, stage)
             boss.sprite.draw(boss.x + 10, boss.y - 40, boss.spriteScale)
         end
         Game.Color.Set(Game.Color.Red, Game.Shade.Dark)
-        love.graphics.rectangle("fill", boss.x - boss.health/4, boss.y - 150, boss.health/2, 10, 4, 4)
+        if boss.healthRatio == 0 then
+            boss.healthRatio = boss.health
+        end
+        local barWidth = Window.width * (boss.health / boss.healthRatio)
+        love.graphics.rectangle("fill", (Window.width - barWidth) / 2, 0, barWidth, 20, 5, 5)
         Game.Color.Clear()
     end
     function boss.modeAllowed(list, mode)
