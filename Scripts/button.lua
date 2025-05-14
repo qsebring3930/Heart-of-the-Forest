@@ -53,7 +53,7 @@ function Button(images)
     function button.checkClick(mx, my)
         if mx >= button.x and mx <= button.x + button.width and
             my >= button.y and my <= button.y + button.height and
-            button.func then
+            button.func and GameState.menu then
                 button.func()
                 print("button clicked!")
         end
