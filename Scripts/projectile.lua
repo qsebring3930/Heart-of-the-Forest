@@ -190,6 +190,7 @@ function Projectile()
                                     owner = Boss
                                 }
                                 Spawn(split)
+                                Sounds.bomb2:play()
                             end
                             table.remove(Projectiles.list, i)
                         end
@@ -241,8 +242,6 @@ function Projectile()
                         end
                     end
                 end
-
-                p.radius = p.radius + 1.25 * dt
                 if p.sprite then
                     p.sprite.update(dt)
                 end
@@ -254,7 +253,6 @@ function Projectile()
 
                 if hitBoss or hitPlayer or outOfBounds then
                     if hitBoss then
-                        print("Boss was hit!")
                         Boss.health = Boss.health - 1
                         if Boss.health <= 0 and not GameState.fading then
                             GameState.transition()
@@ -296,6 +294,9 @@ function Projectile()
 
             if p.sprite then
                 p.sprite.draw(p.x, p.y, p.spriteScale)
+                --Game.Color.Set(p.color, p.shade)
+                --love.graphics.circle("line", p.x, p.y, p.radius)
+                --Game.Color.Clear()
             end
         end
     end

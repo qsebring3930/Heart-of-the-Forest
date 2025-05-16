@@ -86,12 +86,19 @@ local overlay = {
     }
 }
 
-function overlay.fadeTo(duration, callback)
-    overlay.fade.alpha = 0
+
+function overlay.fadeTo(duration, callback, oneway)
     overlay.fade.duration = duration or 1
     overlay.fade.timer = 0
     overlay.fade.active = true
-    overlay.fade.dir = 1
+    overlay.fade.once = oneway or false
+    if oneway then
+        overlay.fade.alpha = 1           -- start fully black
+        overlay.fade.dir = -1            -- fade out
+    else
+        overlay.fade.alpha = 0           -- start transparent
+        overlay.fade.dir = 1             -- fade in
+    end
     overlay.fade.callback = callback
 end
 
@@ -99,15 +106,43 @@ function overlay.set(val)
     overlay.intensity = val
     if overlay.intensity == 0 then
         overlay.controlsBackwards = 0
+        if BackgroundMusic and BackgroundMusic.game then
+            BackgroundMusic.game:setPitch(1)
+            BackgroundMusic.game:setVolume(0.5)
+        end
     end
     overlay.time = val
+    if overlay.cur == 5 then
+        for shader, weight in pairs(overlay.activeStack) do
+            overlay.activeStack[shader] = 0.0
+        end
+    end
 end
 
 function overlay.update(dt)
     overlay.time = overlay.time + dt
     if overlay.intensity > 0 then
+        if GameState.stagenum == 3 then
+            BackgroundMusic.game:pause()
+        end
         overlay.intensity = overlay.intensity - dt / 10
         if overlay.intensity < 0 then overlay.intensity = 0 end
+    end
+    if overlay.intensity == 0 and BackgroundMusic and BackgroundMusic.game and GameState.staged then
+        BackgroundMusic.game:setPitch(1)
+        BackgroundMusic.game:setVolume(0.5)
+
+        if overlay.cur == 3 and GameState.stagenum == 3 then
+            if BackgroundMusic.gameasl:isPlaying() then
+                local t = BackgroundMusic.gameasl:tell()
+                BackgroundMusic.gameasl:pause()
+                BackgroundMusic.game:seek(BackgroundMusic.game:getDuration() - t)
+                BackgroundMusic.game:play()
+            end
+        elseif not BackgroundMusic.game:isPlaying() then
+            BackgroundMusic.game:play()
+        end
+
     end
     if overlay.cur == 5 then
         for shader, weight in pairs(overlay.activeStack) do
@@ -118,20 +153,31 @@ function overlay.update(dt)
         overlay.controlsBackwards = math.max(0, overlay.controlsBackwards - dt)
     end
     if overlay.fade.active then
-        overlay.fade.timer = overlay.fade.timer + dt * overlay.fade.dir
+        overlay.fade.timer = overlay.fade.timer + dt
         local t = overlay.fade.timer / overlay.fade.duration
-        overlay.fade.alpha = math.max(0, math.min(1, t))
+        if overlay.fade.dir == 1 then
+            overlay.fade.alpha = math.min(1, t)
+        else
+            overlay.fade.alpha = 1 - math.min(1, t)
+        end
 
-        if overlay.fade.dir == 1 and overlay.fade.alpha >= 1 then
-            print("Fade reached full alpha, calling callback!")
+        if t >= 1 then
             if overlay.fade.callback then
                 overlay.fade.callback()
                 overlay.fade.callback = nil
             end
-            overlay.fade.dir = -1
-        elseif overlay.fade.dir == -1 and overlay.fade.alpha <= 0 then
-            overlay.fade.active = false
+            if overlay.fade.once then
+                overlay.fade.active = false
+            elseif overlay.fade.dir == 1 then
+                overlay.fade.dir = -1
+                overlay.fade.timer = 0
+            else
+                overlay.fade.active = false
+            end
         end
+    end
+    if overlay.intensity > 0 then
+        overlay.applyAudioEffect(overlay.cur, overlay.intensity)
     end
 end
 
@@ -148,6 +194,7 @@ function overlay.increment()
         local chosen = keys[math.random(#keys)]
         overlay.activeStack[chosen] = overlay.activeStack[chosen] + 0.1
     end
+    overlay.applyAudioEffect(overlay.cur, overlay.intensity)
 end
 
 function overlay.transition()
@@ -210,6 +257,36 @@ function overlay.draw(canvas)
         love.graphics.setColor(0, 0, 0, overlay.fade.alpha)
         love.graphics.rectangle("fill", 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
         love.graphics.setColor(1, 1, 1, 1)
+    end
+end
+
+function overlay.applyAudioEffect(index, intensity)
+    local music = BackgroundMusic.game
+
+    if not music then return end
+
+    if index == 1 then
+        music:setPitch(1 + intensity * 0.1 * math.random(-1,1))
+        music:setVolume(0.3 + 0.3 * math.random())
+    elseif index == 2 then
+        music:setPitch(1.0 - 0.4 * intensity)
+    elseif index == 3 then
+        if GameState.stagenum == 3 then
+            if BackgroundMusic.game:isPlaying() then
+                local t = BackgroundMusic.game:tell()
+                BackgroundMusic.game:pause()
+                BackgroundMusic.gameasl:seek(BackgroundMusic.gameasl:getDuration() - t)
+                BackgroundMusic.gameasl:setLooping(true)
+                BackgroundMusic.gameasl:play()
+            end
+        end
+    elseif index == 4 then
+        music:setPitch(1.0 + 0.05 * math.sin(overlay.time * 5))
+    elseif index == 5 then
+        overlay.applyAudioEffect(math.random(1, 4), intensity)
+    else
+        music:setPitch(1.0)
+        music:setVolume(0.4)
     end
 end
 

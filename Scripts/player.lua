@@ -84,7 +84,7 @@ function Player(x, y)
     end
     function player.hit()
         overlay.increment()
-        Sounds.hit:play()
+        Sounds.hit:clone():play()
     end
     return player
 end

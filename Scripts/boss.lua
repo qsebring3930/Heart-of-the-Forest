@@ -85,12 +85,12 @@ function Boss(x, y, player, stage)
             boss.size = 75
             boss.health = 450
             boss.projectiles = {
-                bomb = {1},
-                tracking = {2},
-                zigzag = {3},
+                bomb = {1,3,5},
+                tracking = {0,4},
+                zigzag = {0,2,6},
                 sine = false,
-                spiral = {4,5,6},
-                radial = {7,8,9},
+                spiral = {1,3,5,7},
+                radial = {0,4},
                 spiral2 = false,
             }
             boss.projectileBase = .25
@@ -160,7 +160,11 @@ function Boss(x, y, player, stage)
         elseif not boss.entering then
             boss.patternTimer = boss.patternTimer + dt
             if boss.patternTimer >= boss.projectileBase then
-                boss.patternIndex = love.math.random(0, boss.projectileModes - 1)
+                if boss.health <= 200 then
+                    boss.patternIndex = (boss.patternIndex + 1) % boss.projectileModes
+                else
+                    boss.patternIndex = love.math.random(0, boss.projectileModes - 1)
+                end
                 boss.patternTimer = 0
 
                 for k in pairs(boss.timers) do
@@ -178,7 +182,7 @@ function Boss(x, y, player, stage)
         if boss.modeAllowed(boss.projectiles.spiral, mode) then
             if boss.timers.spiral <= 0 then
                 boss.projectileModifiers.Spiral = true
-                boss.projectileCount = love.math.random(3,9) * 4
+                boss.projectileCount = love.math.random(2,5) * 7
                 for i = 0, boss.projectileCount - 1 do
                     boss.projectileIndex = i
                     projectiles.spawn(boss)
@@ -255,7 +259,7 @@ function Boss(x, y, player, stage)
         if boss.modeAllowed(boss.projectiles.radial, mode) then
             if boss.timers.radial <= 0 then
                 boss.projectileModifiers.Radial = true
-                boss.projectileCount = love.math.random(3,9) * 4
+                boss.projectileCount = love.math.random(2,5) * 7
                 for i = 0, boss.projectileCount - 1 do
                     boss.projectileIndex = i
                     projectiles.spawn(boss)
@@ -270,7 +274,7 @@ function Boss(x, y, player, stage)
         if boss.modeAllowed(boss.projectiles.spiral2, mode) then
             if boss.timers.spiral2 <= 0 then
                 boss.projectileModifiers.Spiral2 = true
-                boss.projectileCount = love.math.random(3,9) * 4
+                boss.projectileCount = love.math.random(2,5) * 7
                 for i = 0, boss.projectileCount - 1 do
                     boss.projectileIndex = i
                     projectiles.spawn(boss)

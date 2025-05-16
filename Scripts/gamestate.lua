@@ -32,12 +32,14 @@ function Gamestate()
             gamestate.menu = false
             gamestate.transitioning = true
             gamestate.stagenum = 1
-            BackgroundMusic.menu:pause()
+            BackgroundMusic.menu:play()
 
         elseif gamestate.transitioning then
             if gamestate.stagenum <= 5 then
+                print("going to stage")
                 gamestate.transitioning = false
                 gamestate.staged = true
+                love.audio.pause()
                 BackgroundMusic.game:setLooping(true)
                 BackgroundMusic.game:setVolume(0.4)
                 BackgroundMusic.game:play()
@@ -46,12 +48,19 @@ function Gamestate()
 
         elseif gamestate.staged then
             if gamestate.stagenum < 5 then
+                print("going to transition")
+                local bgm = BackgroundMusic["transition" .. gamestate.stagenum]
                 gamestate.win = false
                 gamestate.stagenum = gamestate.stagenum + 1
                 gamestate.staged = false
                 gamestate.transitioning = true
                 overlay.transition()
-                BackgroundMusic.game:pause()
+                love.audio.pause()
+                if bgm then
+                    bgm:setLooping(true)
+                    bgm:setVolume(0.4)
+                    bgm:play()
+                end
             else
                 gamestate.staged = false
                 gamestate.gameover = true

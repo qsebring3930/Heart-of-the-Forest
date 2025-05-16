@@ -9,18 +9,24 @@ local overlay = require "Scripts/overlay"
 function love.load()
     BackgroundMusic = {
         menu = love.audio.newSource("Assets/Sounds/Funnie.mp3", "stream"),
+        gameasl = love.audio.newSource("Assets/Sounds/Bipolar hands demo 1.3 Fix(1).mp3", "stream"),
         game = love.audio.newSource("Assets/Sounds/Bipolar hands demo 1.3 Fix.mp3", "stream"),
+        transition1 = love.audio.newSource("Assets/Sounds/Extras/Ambiance_1.mp3", "stream"),
+        transition2 = love.audio.newSource("Assets/Sounds/Extras/Ambiance_2.mp3", "stream"),
+        transition3 = love.audio.newSource("Assets/Sounds/Extras/Ambiance_3.mp3", "stream"),
+        transition4 = love.audio.newSource("Assets/Sounds/Extras/Ambiance_4.mp3", "stream"),
     }
     Sounds = {
-        player = love.audio.newSource("Assets/Sounds/Bubble heavy 1.wav", "stream"),
-        hit = love.audio.newSource("Assets/Sounds/Hit damage 1.wav", "stream"),
-        ball = love.audio.newSource("Assets/Sounds/Text 1.wav", "stream"),
-        drop = love.audio.newSource("Assets/Sounds/Bubble 1.wav", "stream"),
-        tracker = love.audio.newSource("Assets/Sounds/Blow 1V2.wav", "stream"),
-        point = love.audio.newSource("Assets/Sounds/Cancel 1.wav", "stream"),
-        fire = love.audio.newSource("Assets/Sounds/Block Break 1.wav", "stream"),
-        bolt = love.audio.newSource("Assets/Sounds/Jump 1.wav", "stream"),
-        bomb = love.audio.newSource("Assets/Sounds/Boss hit 1.wav", "stream"),
+        player = love.audio.newSource("Assets/Sounds/Player/Player_Fire.mp3", "stream"),
+        hit = love.audio.newSource("Assets/Sounds/Player/Player_Dead.mp3", "stream"),
+        ball = love.audio.newSource("Assets/Sounds/Projectiles/Projectiles_Blue.mp3", "stream"),
+        drop = love.audio.newSource("Assets/Sounds/Projectiles/Projectiles_Green_Goo.mp3", "stream"),
+        tracker = love.audio.newSource("Assets/Sounds/Projectiles/Projectiles_Snipe.mp3", "stream"),
+        point = love.audio.newSource("Assets/Sounds/Projectiles/Projectiles_Red_Triangle.mp3", "stream"),
+        fire = love.audio.newSource("Assets/Sounds/Projectiles/Projectiles_Flame.mp3", "stream"),
+        bolt = love.audio.newSource("Assets/Sounds/Projectiles/Projectiles_Pink_Zap.mp3", "stream"),
+        bomb = love.audio.newSource("Assets/Sounds/Projectiles/Projectiles_Bomb.mp3", "stream"),
+        bomb2 = love.audio.newSource("Assets/Sounds/Projectiles/Projectiles_Bomb.mp3", "stream"),
     }
     BossImages = {
         zapper = love.graphics.newImage("Assets/Sprites/zapper.png"),
@@ -55,24 +61,24 @@ function love.load()
     PlayerImage = love.graphics.newImage("Assets/Sprites/moth-ss.png")
     GameFont = love.graphics.newFont("Assets/Fonts/DungeonFont.ttf", 72)
     love.graphics.setFont(GameFont)
-    Sounds.player:setVolume(0.3)
+    Sounds.player:setVolume(0.15)
     Sounds.ball:setVolume(0.15)
     Sounds.drop:setVolume(0.15)
-    Sounds.tracker:setVolume(0.05)
+    Sounds.tracker:setVolume(0.15)
     Sounds.point:setVolume(0.15)
     Sounds.fire:setVolume(0.15)
-    Sounds.bolt:setVolume(0.05)
-    Sounds.bomb:setVolume(0.3)
-    Sounds.hit:setVolume(0.8)
-    Sounds.hit:setPitch(0.3)
-    Sounds.bomb:setPitch(0.5)
-    Sounds.fire:setPitch(0.5)
+    Sounds.bolt:setVolume(0.1)
+    Sounds.bomb:setVolume(0.15)
+    Sounds.bomb2:setVolume(0.15)
+    Sounds.hit:setVolume(0.3)
+    --Sounds.bomb:setPitch(0.5)
+    --Sounds.fire:setPitch(0.5)
     Sounds.bolt:setPitch(1.5)
-    Sounds.ball:setPitch(2)
-    Sounds.point:setPitch(2)
-    Sounds.tracker:setPitch(2)
+   --Sounds.ball:setPitch(2)
+    --Sounds.point:setPitch(2)
     BackgroundMusic.menu:setLooping(true)
     BackgroundMusic.menu:setVolume(0.4)
+    BackgroundMusic.gameasl:setVolume(0.5)
     BackgroundMusic.menu:play()
     GameObject = game()
     GameState = gamestate()
@@ -94,6 +100,20 @@ function love.update(dt)
         BossObject.update(dt)
         BossObject.shoot(Projectiles, dt)
         PlayerObject.update(dt)
+    end
+    if BackgroundMusic.game:isPlaying() then
+        if BackgroundMusic.gameasl:isPlaying() then
+            print("Oof both tracks are playing at the same time")
+        else
+            print("only background music is playing")
+        end
+    end
+    if BackgroundMusic.gameasl:isPlaying() then
+        if BackgroundMusic.game:isPlaying() then
+            print("Oof both tracks are playing at the same time")
+        else
+            print("only reversed music is playing")
+        end
     end
 end
 
@@ -135,6 +155,7 @@ function InitWindow()
 end
 
 function InitStage()
+    print("Staging level: " .. GameState.stagenum)
     PlayerObject = player(Window.width / 2, Window.height * 3 / 4)
     BossObject = boss(Window.width / 2, Window.height * 1 / 4, PlayerObject, GameState.stagenum)
     BossObject.stage()
@@ -190,8 +211,8 @@ function love.keypressed(key)
         Width, Height = love.graphics.getDimensions()
         Resize(Width, Height)
     elseif key == "t" then
-        --GameState.stagenum = 4
-        --overlay.cur = 4
+        GameState.stagenum = 3
+        overlay.cur = 3
     elseif key == "p" or key == "escape" then
         if not GameState.menu and not GameState.transitioning and not GameState.gameover then
             GameState.paused = not GameState.paused
@@ -201,13 +222,26 @@ function love.keypressed(key)
             GameState.quit()
         end
     elseif key == "r" then
-        if not GameState.paused then
+        if not GameState.paused and not GameState.menu then
             if not GameState.win then
-                GameState.staged = false
-                GameState.transitioning= true
-                GameState.gameover = false
-                GameState.win = false
+                print("restarting")
                 overlay.set(0)
+                overlay.fadeTo(2, nil, true)
+                love.audio.pause()
+                GameState.staged = false
+                GameState.transitioning = true
+                GameState.fading = false
+                GameState.win = false
+                GameState.gameover = false
+                local bgm
+                if GameState.stagenum > 1 then
+                    bgm = BackgroundMusic["transition" .. GameState.stagenum]
+                else
+                    bgm = BackgroundMusic.menu
+                end
+                if bgm then
+                    bgm:play()
+                end
             else
                 GameState.staged = false
                 GameState.transitioning = false
