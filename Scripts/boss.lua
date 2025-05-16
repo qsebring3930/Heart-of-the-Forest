@@ -44,110 +44,19 @@ function Boss(x, y, player, stage)
         sprite = nil,
         spriteScale = 0,
         healthRatio = 0,
+        enraged = false,
     }
     function boss.stage()
-        --[[if boss.id == 1 then
-            boss.speed = 200
-            boss.size = 75
-            boss.health = 20 --250
-            boss.projectileBase = .5
-            boss.projectiles = {
-                bomb = {1},
-                tracking = {1},
-                zigzag = {1},
-                sine = {1},
-                spiral = {1},
-                radial = {1},
-                spiral2 = {1}
-            }
-            boss.projectileModes = 2
-            boss.spriteScale = 2
-            boss.sprite = Animation.new(BossImages.zapper, 70, 70, 1, 1)--]]
         if boss.id == 1 then
-            boss.speed = 200
-            boss.size = 75
-            boss.health = 400
-            boss.projectileBase = .25
-            boss.projectiles = {
-                bomb = false,
-                tracking = {1,5},
-                zigzag = {0,2,4},
-                sine = false,
-                spiral = false,
-                radial = {1,3,5},
-                spiral2 = false
-            }
-            boss.projectileModes = 6
-            boss.spriteScale = 3
-            boss.sprite = Animation.new(BossImages.zapper, 70, 70, 1, 1)
+            boss.init(400, 0.25, {tracking = {1, 5}, zigzag = {0, 2, 4}, radial = {1, 3, 5}}, 6, 3, BossImages.zapper, 70, 70)
         elseif boss.id == 2 then
-            boss.speed =  200
-            boss.size = 75
-            boss.health = 450
-            boss.projectiles = {
-                bomb = {1,3,5},
-                tracking = {0,4},
-                zigzag = {0,2,6},
-                sine = false,
-                spiral = {1,3,5,7},
-                radial = {0,4},
-                spiral2 = false,
-            }
-            boss.projectileBase = .25
-            boss.projectileModes = 8
-            boss.spriteScale = 2
-            boss.sprite = Animation.new(BossImages.cat, 200, 200, 1, 1)
+            boss.init(450, 0.25, {bomb = {1, 3, 5},tracking = {0, 4}, zigzag = {0, 2, 6},spiral = {1, 3, 5, 7},radial = {0, 4}}, 8, 2, BossImages.cat, 200, 200)
         elseif boss.id == 3 then
-            boss.speed = 200
-            boss.size = 75
-            boss.health = 500
-            boss.projectiles = {
-                bomb = false,
-                tracking = false,
-                zigzag = false,
-                sine = {0,3,4,7},
-                spiral = {1,6,7},
-                radial = {3,5,8},
-                spiral2 = {0,1,6,7}
-            }
-            boss.projectileBase = .2
-            boss.projectileModes = 9
-            boss.spriteScale = 3
-            boss.sprite = Animation.new(BossImages.deer, 70, 87, 1, 1)
+            boss.init(500, 0.2, {sine = {0, 3, 4, 7},spiral = {1, 6, 7},radial = {3, 5, 8},spiral2 = {0, 1, 6, 7}}, 9, 3, BossImages.deer, 70, 87)
         elseif boss.id == 4 then
-            boss.speed = 200
-            boss.size = 75
-            boss.health = 550
-            boss.projectiles = {
-                bomb = {3, 7},
-                tracking = {1, 4},
-                zigzag = {0, 2},
-                sine = {2, 4, 6},
-                spiral = {2, 4, 6},
-                radial = {0, 5},
-                spiral2 = false
-            }
-            boss.projectileBase = .2
-            boss.projectileModes = 8
-            boss.spriteScale = 1
-            boss.sprite = Animation.new(BossImages.mushroom, 200, 200, 1, 1)
+            boss.init(550, 0.2, {bomb = {3, 7},tracking = {1, 4},zigzag = {0, 2},sine = {2, 4, 6},spiral = {2, 4, 6},radial = {0, 5}}, 8, 1, BossImages.mushroom, 200, 200)
         elseif boss.id == 5 then
-            boss.speed = 200
-            boss.size = 75
-            boss.health = 600
-            boss.projectiles = {
-                bomb = {6},
-                tracking = {1, 3, 5, 7, 11},
-                zigzag = {0, 2, 4, 6, 8},
-                sine = {1, 3, 6, 9},
-                spiral = {2, 3, 5, 8, 10, 11},
-                radial = {0, 4, 8, 12},
-                spiral2 = {3, 7, 11, 13}
-            }
-            boss.projectileBase = .2
-            boss.projectileModes = 14
-            boss.spriteScale = 1
-            boss.sprite = Animation.new(BossImages.flower, 200, 200, 1, 1)
+            boss.init(600, 0.2, {bomb = {6},tracking = {1, 3, 5, 7, 11},zigzag = {0, 2, 4, 6, 8},sine = {1, 3, 6, 9},spiral = {2, 3, 5, 8, 10, 11},radial = {0, 4, 8, 12},spiral2 = {3, 7, 11, 13}}, 14, 1, BossImages.flower, 200, 200)
         end
     end
     function boss.update(dt)
@@ -160,8 +69,12 @@ function Boss(x, y, player, stage)
         elseif not boss.entering then
             boss.patternTimer = boss.patternTimer + dt
             if boss.patternTimer >= boss.projectileBase then
-                if boss.health <= 200 then
+                if boss.health / boss.healthRatio <= 0.25 then
                     boss.patternIndex = (boss.patternIndex + 1) % boss.projectileModes
+                    if not boss.enraged then
+                        boss.projectileBase = boss.projectileBase - .05
+                        boss.enraged = true
+                    end
                 else
                     boss.patternIndex = love.math.random(0, boss.projectileModes - 1)
                 end
@@ -178,112 +91,39 @@ function Boss(x, y, player, stage)
         boss.sprite.update(dt)
     end
     function boss.shoot(projectiles, dt)
-        local mode = boss.patternIndex
-        if boss.modeAllowed(boss.projectiles.spiral, mode) then
-            if boss.timers.spiral <= 0 then
-                boss.projectileModifiers.Spiral = true
-                boss.projectileCount = love.math.random(2,5) * 7
+        local dx = player.x - boss.x
+        local dy = player.y - boss.y
+        local function calcAngle(offset)
+            local angle = math.atan(dy / dx)
+            if dx < 0 then angle = angle + math.pi end
+            return angle - math.rad(offset)
+        end
+
+        boss.tryShoot("spiral", "Spiral", function() return love.math.random(2, 5) * 7 end, nil, Sounds.point, projectiles)
+        boss.tryShoot("sine", "Sine", function() return love.math.random(1, 3) * 3 end, function() return calcAngle(180 / 2) end, Sounds.drop, projectiles)
+        boss.tryShoot("tracking", "Tracking", function() return 1 end, nil, Sounds.tracker, projectiles)
+        boss.tryShoot("bomb", "Bomb", function() return 1 end, nil, Sounds.bomb, projectiles)
+        boss.tryShoot("zigzag", "Zigzag", function() return love.math.random(2, 6) end, function() return calcAngle(125 / 2) end, Sounds.bolt, projectiles)
+        boss.tryShoot("radial", "Radial", function() return love.math.random(2, 5) * 7 end, nil, Sounds.ball, projectiles)
+        boss.tryShoot("spiral2", "Spiral2", function() return love.math.random(2, 5) * 7 end, nil, Sounds.fire, projectiles)
+    end
+    function boss.tryShoot(key, modifierName, countFunc, angleFunc, sound, projectiles)
+        if boss.modeAllowed(boss.projectiles[key], boss.patternIndex) then
+            if boss.timers[key] <= 0 then
+                if angleFunc then
+                    boss.angle = angleFunc()
+                end
+                boss.projectileModifiers[modifierName] = true
+                boss.projectileCount = countFunc()
                 for i = 0, boss.projectileCount - 1 do
                     boss.projectileIndex = i
                     projectiles.spawn(boss)
                 end
-                boss.projectileModifiers.Spiral = false
+                boss.projectileModifiers[modifierName] = false
                 boss.projectileIndex = nil
                 boss.projectileCount = nil
-                boss.timers.spiral = boss.projectileBase
-                Sounds.point:play()
-            end
-        end
-        if boss.modeAllowed(boss.projectiles.sine, mode) then
-            if boss.timers.sine <= 0 then
-                local dx = player.x - boss.x
-                local dy = player.y - boss.y
-                local angle = math.atan(dy / dx)
-                if dx < 0 then
-                    angle = angle + math.pi
-                end
-                boss.angle = angle - math.rad(180) / 2
-                boss.projectileModifiers.Sine = true
-                boss.projectileCount = love.math.random(1,3) * 3
-                for i = 0, boss.projectileCount - 1 do
-                    boss.projectileIndex = i
-                    projectiles.spawn(boss)
-                end
-                boss.projectileModifiers.Sine = false
-                boss.projectileIndex = nil
-                boss.projectileCount = nil
-                boss.timers.sine = boss.projectileBase
-                Sounds.drop:play()
-            end
-        end
-        if boss.modeAllowed(boss.projectiles.tracking, mode) then
-            if boss.timers.tracking <= 0 then
-                boss.projectileModifiers.Tracking = true
-                projectiles.spawn(boss)
-                boss.projectileModifiers.Tracking = false
-                boss.timers.tracking = boss.projectileBase
-                Sounds.tracker:play()
-            end
-        end
-        if boss.modeAllowed(boss.projectiles.bomb, mode) then
-            if boss.timers.bomb <= 0 then
-                boss.projectileModifiers.Bomb = true
-                projectiles.spawn(boss)
-                boss.projectileModifiers.Bomb = false
-                boss.timers.bomb = boss.projectileBase
-                Sounds.bomb:play()
-            end
-        end
-        if boss.modeAllowed(boss.projectiles.zigzag, mode) then
-            if boss.timers.zigzag <= 0 then
-                local dx = player.x - boss.x
-                local dy = player.y - boss.y
-                local angle = math.atan(dy / dx)
-                if dx < 0 then
-                    angle = angle + math.pi
-                end
-                boss.angle = angle - math.rad(125) / 2
-                boss.projectileModifiers.Zigzag = true
-                boss.projectileCount = love.math.random(2,6)
-                for i = 0, boss.projectileCount - 1 do
-                    boss.projectileIndex = i
-                    projectiles.spawn(boss)
-                end
-                boss.projectileModifiers.Zigzag = false
-                boss.projectileIndex = nil
-                boss.projectileCount = nil
-                boss.timers.zigzag = boss.projectileBase
-                Sounds.bolt:play()
-            end
-        end
-        if boss.modeAllowed(boss.projectiles.radial, mode) then
-            if boss.timers.radial <= 0 then
-                boss.projectileModifiers.Radial = true
-                boss.projectileCount = love.math.random(2,5) * 7
-                for i = 0, boss.projectileCount - 1 do
-                    boss.projectileIndex = i
-                    projectiles.spawn(boss)
-                end
-                boss.projectileModifiers.Radial = false
-                boss.projectileIndex = nil
-                boss.projectileCount = nil
-                boss.timers.radial = boss.projectileBase
-                Sounds.ball:play()
-            end
-        end
-        if boss.modeAllowed(boss.projectiles.spiral2, mode) then
-            if boss.timers.spiral2 <= 0 then
-                boss.projectileModifiers.Spiral2 = true
-                boss.projectileCount = love.math.random(2,5) * 7
-                for i = 0, boss.projectileCount - 1 do
-                    boss.projectileIndex = i
-                    projectiles.spawn(boss)
-                end
-                boss.projectileModifiers.Spiral2 = false
-                boss.projectileIndex = nil
-                boss.projectileCount = nil
-                boss.timers.spiral2 = boss.projectileBase
-                Sounds.fire:play()
+                boss.timers[key] = boss.projectileBase
+                sound:play()
             end
         end
     end
@@ -293,14 +133,38 @@ function Boss(x, y, player, stage)
         else
             boss.sprite.draw(boss.x + 10, boss.y - 40, boss.spriteScale)
         end
-        Game.Color.Set(Game.Color.Red, Game.Shade.Dark)
+        if boss.health / boss.healthRatio <= 0.25 then
+            Game.Color.Set(Game.Color.Red, Game.Shade.Neon)
+            love.graphics.print("ENRAGED!", Window.width/2 - GameFont:getWidth("ENRAGED!")/8, 20, 0, .25, .25)
+        else
+            Game.Color.Set(Game.Color.Red, Game.Shade.Dark)
+        end
         if boss.healthRatio == 0 then
             boss.healthRatio = boss.health
         end
         local barWidth = Window.width * (boss.health / boss.healthRatio)
         love.graphics.rectangle("fill", (Window.width - barWidth) / 2, 0, barWidth, 20, 5, 5)
+        if boss.health < 200 then
+
+        end
         Game.Color.Clear()
     end
+    function boss.init(health, projectileBase, modes, projectileModes, spriteScale, spriteImage, frameW, frameH)
+        boss.health = health
+        boss.healthRatio = health
+        boss.projectileBase = projectileBase
+        boss.projectiles = {}
+
+        local keys = { "bomb", "tracking", "zigzag", "sine", "spiral", "radial", "spiral2" }
+        for _, key in ipairs(keys) do
+            boss.projectiles[key] = modes[key] or false
+        end
+
+        boss.projectileModes = projectileModes
+        boss.spriteScale = spriteScale
+        boss.sprite = Animation.new(spriteImage, frameW, frameH, 1, 1)
+    end
+
     function boss.modeAllowed(list, mode)
         if list == false then return false end
         for _, m in ipairs(list) do
@@ -309,6 +173,11 @@ function Boss(x, y, player, stage)
         return false
     end
     return boss
+
+
+
+
+
 end
 
 return Boss

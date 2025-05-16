@@ -101,20 +101,6 @@ function love.update(dt)
         BossObject.shoot(Projectiles, dt)
         PlayerObject.update(dt)
     end
-    if BackgroundMusic.game:isPlaying() then
-        if BackgroundMusic.gameasl:isPlaying() then
-            print("Oof both tracks are playing at the same time")
-        else
-            print("only background music is playing")
-        end
-    end
-    if BackgroundMusic.gameasl:isPlaying() then
-        if BackgroundMusic.game:isPlaying() then
-            print("Oof both tracks are playing at the same time")
-        else
-            print("only reversed music is playing")
-        end
-    end
 end
 
 function love.draw()
