@@ -99,22 +99,26 @@ function Boss(x, y, player, stage)
             return angle - math.rad(offset)
         end
 
-        boss.tryShoot("spiral", "Spiral", function() return love.math.random(2, 5) * 7 end, nil, Sounds.point, projectiles)
-        boss.tryShoot("sine", "Sine", function() return love.math.random(1, 3) * 3 end, function() return calcAngle(180 / 2) end, Sounds.drop, projectiles)
-        boss.tryShoot("tracking", "Tracking", function() return 1 end, nil, Sounds.tracker, projectiles)
-        boss.tryShoot("bomb", "Bomb", function() return 1 end, nil, Sounds.bomb, projectiles)
-        boss.tryShoot("zigzag", "Zigzag", function() return love.math.random(2, 6) end, function() return calcAngle(125 / 2) end, Sounds.bolt, projectiles)
-        boss.tryShoot("radial", "Radial", function() return love.math.random(2, 5) * 7 end, nil, Sounds.ball, projectiles)
-        boss.tryShoot("spiral2", "Spiral2", function() return love.math.random(2, 5) * 7 end, nil, Sounds.fire, projectiles)
+        boss.tryShoot("spiral", "Spiral", function() return love.math.random(2, 5) * 7 end, 35, nil, Sounds.point, projectiles)
+        boss.tryShoot("sine", "Sine", function() return love.math.random(1, 3) * 3 end, 9, function() return calcAngle(180 / 2) end, Sounds.drop, projectiles)
+        boss.tryShoot("tracking", "Tracking", function() return 1 end, nil, nil, Sounds.tracker, projectiles)
+        boss.tryShoot("bomb", "Bomb", function() return 1 end, nil, nil, Sounds.bomb, projectiles)
+        boss.tryShoot("zigzag", "Zigzag", function() return love.math.random(2, 6) end, 6, function() return calcAngle(125 / 2) end, Sounds.bolt, projectiles)
+        boss.tryShoot("radial", "Radial", function() return love.math.random(2, 5) * 7 end, 35, nil, Sounds.ball, projectiles)
+        boss.tryShoot("spiral2", "Spiral2", function() return love.math.random(2, 5) * 7 end, 35, nil, Sounds.fire, projectiles)
     end
-    function boss.tryShoot(key, modifierName, countFunc, angleFunc, sound, projectiles)
+    function boss.tryShoot(key, modifierName, countFunc, enrageCount, angleFunc, sound, projectiles)
         if boss.modeAllowed(boss.projectiles[key], boss.patternIndex) then
             if boss.timers[key] <= 0 then
                 if angleFunc then
                     boss.angle = angleFunc()
                 end
                 boss.projectileModifiers[modifierName] = true
-                boss.projectileCount = countFunc()
+                if boss.enraged and enrageCount then
+                    boss.projectileCount = enrageCount
+                else
+                    boss.projectileCount = countFunc()
+                end
                 for i = 0, boss.projectileCount - 1 do
                     boss.projectileIndex = i
                     projectiles.spawn(boss)
