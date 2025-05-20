@@ -41,7 +41,7 @@ function Gamestate()
                 gamestate.staged = true
                 love.audio.pause()
                 BackgroundMusic.game:setLooping(true)
-                BackgroundMusic.game:setVolume(0.4)
+                BackgroundMusic.game:setVolume(0.3)
                 BackgroundMusic.game:play()
                 InitStage()
             end
@@ -58,13 +58,15 @@ function Gamestate()
                 love.audio.pause()
                 if bgm then
                     bgm:setLooping(true)
-                    bgm:setVolume(0.4)
+                    bgm:setVolume(0.3)
                     bgm:play()
                 end
             else
                 gamestate.staged = false
                 gamestate.gameover = true
                 gamestate.win = true
+                love.audio.pause()
+                BackgroundMusic.win:play()
             end
 
         end

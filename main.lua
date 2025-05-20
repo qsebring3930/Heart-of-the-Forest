@@ -15,6 +15,8 @@ function love.load()
         transition2 = love.audio.newSource("Assets/Sounds/Extras/Ambiance_2.mp3", "stream"),
         transition3 = love.audio.newSource("Assets/Sounds/Extras/Ambiance_3.mp3", "stream"),
         transition4 = love.audio.newSource("Assets/Sounds/Extras/Ambiance_4.mp3", "stream"),
+        gameover = love.audio.newSource("Assets/Sounds/Game_Over.mp3", "stream"),
+        win = love.audio.newSource("Assets/Sounds/Victory....mp3", "stream"),
     }
     Sounds = {
         player = love.audio.newSource("Assets/Sounds/Player/Player_Fire.mp3", "stream"),
@@ -26,7 +28,7 @@ function love.load()
         fire = love.audio.newSource("Assets/Sounds/Projectiles/Projectiles_Flame.mp3", "stream"),
         bolt = love.audio.newSource("Assets/Sounds/Projectiles/Projectiles_Pink_Zap.mp3", "stream"),
         bomb = love.audio.newSource("Assets/Sounds/Projectiles/Projectiles_Bomb.mp3", "stream"),
-        bomb2 = love.audio.newSource("Assets/Sounds/Projectiles/Projectiles_Bomb.mp3", "stream"),
+        bomb2 = love.audio.newSource("Assets/Sounds/Projectiles/Projectiles_Bomb_Explosion.mp3", "stream"),
     }
     BossImages = {
         zapper = love.graphics.newImage("Assets/Sprites/zapper.png"),
@@ -62,23 +64,42 @@ function love.load()
     GameFont = love.graphics.newFont("Assets/Fonts/DungeonFont.ttf", 72)
     love.graphics.setFont(GameFont)
     Sounds.player:setVolume(0.2)
-    Sounds.ball:setVolume(0.15)
-    Sounds.drop:setVolume(0.15)
-    Sounds.tracker:setVolume(0.15)
-    Sounds.point:setVolume(0.15)
-    Sounds.fire:setVolume(0.15)
-    Sounds.bolt:setVolume(0.1)
-    Sounds.bomb:setVolume(0.15)
-    Sounds.bomb2:setVolume(0.15)
+    Sounds.ball:setVolume(0.4)
+    Sounds.drop:setVolume(0.25)
+    Sounds.tracker:setVolume(0.3)
+    Sounds.point:setVolume(0.2)
+    Sounds.fire:setVolume(0.6)
+    Sounds.bolt:setVolume(0.4)
+    Sounds.bomb:setVolume(0.5)
+    Sounds.bomb2:setVolume(0.5)
     Sounds.hit:setVolume(0.3)
+    Sounds.tracker:setPitch(1.2)
     --Sounds.bomb:setPitch(0.5)
     --Sounds.fire:setPitch(0.5)
-    Sounds.bolt:setPitch(1.5)
-   --Sounds.ball:setPitch(2)
+    --Sounds.bolt:setPitch(3)
+    --Sounds.ball:setPitch(2)
     --Sounds.point:setPitch(2)
+    Sounds.tracker:setFilter({
+        type = "bandpass",
+        volume = 1.0,
+        lowgain = 0.8,
+        highgain = 0.5,
+    })
+    Sounds.bolt:setFilter({
+        type = "lowpass",
+        highgain = 0.7,
+        volume = 1.0,
+    })
+    Sounds.point:setFilter({
+        type = "lowpass",
+        highgain = 0.8,
+        volume = 1.0,
+    })
     BackgroundMusic.menu:setLooping(true)
     BackgroundMusic.menu:setVolume(0.4)
     BackgroundMusic.gameasl:setVolume(0.5)
+    BackgroundMusic.gameover:setVolume(0.5)
+    BackgroundMusic.win:setVolume(0.5)
     BackgroundMusic.menu:play()
     GameObject = game()
     GameState = gamestate()
@@ -90,6 +111,7 @@ function love.load()
 end
 
 function love.update(dt)
+    updateSounds(dt)
     if not GameState.paused then
         overlay.update(dt)
     end
@@ -131,6 +153,15 @@ function love.draw()
     love.graphics.clear()
     love.graphics.origin()
     overlay.draw(GameCanvas)
+end
+
+function updateSounds(dt)
+    Sounds.ball:setPitch(1.5 + math.random() * 0.6)
+    Sounds.drop:setPitch(1.0 + math.random() * 0.8)
+    Sounds.point:setPitch(2 + math.random() * 1.5)
+    Sounds.bolt:setPitch(1.0 + math.random() * 3.0)
+    Sounds.tracker:setPitch(1.0 + math.random() * 1.4)
+    Sounds.hit:setPitch(1.0 + math.random() * 0.2)
 end
 
 function InitWindow()
@@ -229,6 +260,7 @@ function love.keypressed(key)
                     bgm:play()
                 end
             else
+                love.audio.pause()
                 GameState.staged = false
                 GameState.transitioning = false
                 GameState.stagenum = 0

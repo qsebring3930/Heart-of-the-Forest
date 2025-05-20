@@ -177,11 +177,6 @@ function Boss(x, y, player, stage)
         return false
     end
     return boss
-
-
-
-
-
 end
 
 return Boss

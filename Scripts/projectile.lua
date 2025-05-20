@@ -265,6 +265,8 @@ function Projectile()
                         if overlay.intensity >= 2 then
                             GameState.staged = false
                             GameState.gameover = true
+                            love.audio.pause()
+                            BackgroundMusic.gameover:play()
                             overlay.set(0)
                         end
                     else
