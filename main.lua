@@ -128,7 +128,7 @@ end
 function love.draw()
     -- draw game to canvas
     love.graphics.setCanvas(GameCanvas)
-    love.graphics.clear()
+    love.graphics.clear(0,0,0,1)
 
     love.graphics.translate(Window.translateX, Window.translateY)
     love.graphics.scale(Window.scale)
